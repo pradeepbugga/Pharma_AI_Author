@@ -7,7 +7,29 @@ from pipeline.postprocess import extract_drug_candidates
 
 from agents.disambiguate import classify_entity
 from agents.select_primary import select_primary_drug
+from schemas.evidence import normalize_evidence
 
+
+def compute_evidence_used(evidence):
+    return {
+        "pubchem": evidence["pubchem"]["compound"] or evidence["pubchem"]["substance"],
+        "uniprot": evidence["uniprot"]["found"],
+        "cellosaurus": evidence["cellosaurus"]["found"],
+        "web": evidence["web"]["used"]
+    }
+
+
+def validate_and_attach(result, entity, evidence):
+    if not isinstance(result, dict) or "label" not in result:
+        return {
+            "entity": entity,
+            "label": "other",
+            "confidence": 0.0,
+            "evidence_used": {"pubchem": False, "uniprot": False, "cellosaurus": False, "web": False},
+            "evidence": evidence
+        }
+    result["evidence"] = evidence
+    return result
 
 def run_pipeline(entities, text):
     session = requests.Session()
@@ -19,9 +41,15 @@ def run_pipeline(entities, text):
     for entity in entities:
         contexts = get_entity_context(entity, text)
 
-        evidence = gather_evidence(entity, session)
+        raw_evidence = gather_evidence(entity, session)
+        evidence = normalize_evidence(raw_evidence)
+
 
         result = classify_entity(entity, contexts, evidence)
+        
+        result = validate_and_attach(result, entity, evidence)
+
+        result["evidence_used"] = compute_evidence_used(evidence)
 
         classified_entities.append(result)
 
