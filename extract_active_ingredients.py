@@ -18,8 +18,12 @@ def extract_active(drug_name, drug_candidates, text):
     From the candidate drugs, identify which are ACTIVE INGREDIENTS.
 
     Definitions:
-    - Active ingredients are drugs that are administered to produce a therapeutic effect
-    - The primary drug is assumed to be active unless evidence contradicts this
+    - Active ingredients are the drug substance(s) that constitute the investigational product
+    - This typically includes ONLY the primary drug unless the study explicitly defines a fixed combination product
+
+    Important:
+    - Drugs used in combination experiments are NOT active ingredients
+    - These are considered combination agents, not part of the investigational product
 
     Rules:
     - Include a drug ONLY if there is explicit evidence it is administered (e.g., "treated with", "administered", "in combination with")
