@@ -6,7 +6,11 @@ from extract_active_ingredients import extract_active
 from detect_study_model import detect_model
 from utils.chunk_and_retrieve import retrieve_chunks_simple, split_into_chunks, filter_chunks
 from detect_administration import detect_admin
-from detect_dose import extract_dose_candidates
+from detect_dose import extract_dose_candidates, split_by_unit, summarize_dose_range, detect_dose_LLM, get_dose_contexts
+from detect_duration import extract_duration_candidates, get_duration_contexts, detect_duration_LLM, normalize_durations
+from collections import defaultdict
+from detect_formulation import detect_formulation
+from detect_broad_objectives import detect_objectives
 
 # Example: plug in your GLiNER output
 #entities = [
@@ -27,19 +31,29 @@ entities = list(entity_counts.keys())
 with open("./data/papers/PMID_36216931/raw_text.json") as f:
     data = json.load(f)
 
-abstract_section = ""
-results_section = ""
+
+abstract_section = []
+results_section = []
+discussion_section = []
+materials_methods_section = []
+
 for section in data.get("sections", []):
+    
     if section.get("major_heading", "") == "Abstract":
-        abstract_section = section.get("section_text", "")
-    if section.get("major_heading", "") == "Results":
-        results_section = section.get("section_text", "")
-        break
+        
+        abstract_section.append(section.get("section_text", ""))
+    elif section.get("major_heading", "") == "Results":
+        
+        results_section.append(section.get("section_text", ""))
+    elif section.get("major_heading", "") == "Discussion":      
+        discussion_section.append(section.get("section_text", ""))
+    elif section.get("major_heading", "") == "Materials and Methods":
+        
+        materials_methods_section.append(section.get("section_text", ""))
 
 # Combine relevant sections
-text = " ".join(
-    [abstract_section, results_section]
-)
+text = "".join(abstract_section + results_section)
+
 '''
 result = run_pipeline(entities, text)
 
@@ -113,10 +127,6 @@ print(f"In vitro chunks: {len(in_vitro_chunks)}")
 print(f"In vivo chunks: {len(in_vivo_chunks)}")
 print(f"Clinical chunks: {len(clinical_chunks)}")
 
-for chunk in clinical_chunks:
-    print(f"\nClinical chunk:\n{chunk}\n")
-
-
 study_model = detect_model('MRTX1133', in_vitro_chunks, in_vivo_chunks, clinical_chunks)
 print("\n=== STUDY MODEL OUTPUT ===")
 print(json.dumps(study_model, indent=2))
@@ -150,15 +160,75 @@ administration_info = detect_admin('MRTX1133', admin_chunks, model_chunks, study
 print("\n=== ADMINISTRATION OUTPUT ===")
 print(json.dumps(administration_info, indent=2))
 
-has_human_data = administration_info.get("clinical", {}).get("value", False) or study_model.get("has_clinical", False)
+has_human_data = administration_info.get("clinical", {}).get("value", False) 
 print(f"\nDoes the study include human data? {'Yes' if has_human_data else 'No'}")
 
-'''
 #------------DETECT DOSE------------------
-
-print(text)
-
-
 dose_candidates = extract_dose_candidates(text)
-print("\n=== DOSE CANDIDATES OUTPUT ===")
-print(json.dumps(dose_candidates, indent=2))
+deduped_dose_candidates = sorted(set([c.strip().lower() for c in dose_candidates]))
+split_dose_candidates = split_by_unit(deduped_dose_candidates)
+summarized_dose_range = summarize_dose_range(split_dose_candidates[0]) if split_dose_candidates[0] else None
+
+dose_contexts = get_dose_contexts(text, split_dose_candidates[0])
+
+dose_info = detect_dose_LLM('MRTX1133', split_dose_candidates[0], dose_contexts, admin_chunks, administration_info)
+
+print("\n=== DOSE OUTPUT ===")
+print(json.dumps(dose_info, indent=2))
+
+
+#------------DETECT DURATION------------------
+
+duration_candidates = extract_duration_candidates(text)
+print(f"\nDuration candidates extracted: {duration_candidates}")
+
+duration_contexts = get_duration_contexts(text, duration_candidates)
+
+duration_results = []
+duration_results_full = []
+for d in duration_contexts:
+    duration_context = get_duration_contexts(text, d)
+    duration_info = detect_duration_LLM('MRTX1133',d, duration_contexts, admin_chunks, administration_info, dose_info)
+    duration_results.append((d, duration_info["classification"]))
+    duration_results_full.append({
+        "value": d,
+        "classification": duration_info["classification"],
+        "evidence": duration_info.get("evidence", ""),
+        "confidence": duration_info.get("confidence", 0)
+    })
+
+grouped = defaultdict(list)
+
+for d, classification in duration_results:
+    grouped[classification].append(d)
+
+normalized_duration_results = normalize_durations(grouped, duration_results_full)
+
+
+print("\n=== DURATION OUTPUT ===")
+print(json.dumps(normalized_duration_results, indent=2))
+'''
+#------------DETECT FORMULATION------------------
+FORMULATION_KEYWORDS = [
+    "formulated in",
+    "vehicle",
+    "dissolved in",
+    "prepared in",
+    "resuspended in",
+    "diluted in"
+]
+formulation_chunks = retrieve_chunks_simple(text + " ".join(materials_methods_section), FORMULATION_KEYWORDS, "MRTX1133")
+formulation_info = detect_formulation('MRTX1133', formulation_chunks)
+
+print("\n=== FORMULATION OUTPUT ===")
+print(json.dumps(formulation_info, indent=2))
+
+#------------BROAD OBJECTIVES ------------------
+
+input_objective_text = abstract_section + discussion_section
+
+broad_objectives = detect_objectives('MRTX1133', input_objective_text)
+
+print("\n=== BROAD OBJECTIVES OUTPUT ===")
+print(json.dumps(broad_objectives, indent=2))
+
