@@ -20,6 +20,22 @@ def detect_model(drug_name, in_vitro_chunks, in_vivo_chunks, clinical_chunks):
     Rules:
     - Only consider contexts where the drug is administered or tested
     - Ignore background mentions or references to other studies
+   
+    Only classify "clinical" if there is evidence of:
+    - human patients receiving treatment
+    - clinical trials
+
+    Do NOT classify as clinical for:
+    - "patients" mentioned in discussion
+    - "therapeutic potential"
+    - "clinical relevance"
+
+    Confidence Scoring Rubric (STRICT):
+    - 1.0 (Certain): The text explicitly describes a new experiment with {drug_name} (e.g., "We treated mice with...", "Cells were incubated...").
+    - 0.7 (High): The text shows clear experimental data/results for {drug_name} but the methodology is in a different chunk.
+    - 0.5 (Moderate): Mention of {drug_name} alongside a model, but phrasing is ambiguous (e.g., {drug_name} is a potent inhibitor in xenografts" without saying "We used...").
+    - 0.2 (Low): Mention is likely a citation or a general statement (e.g., "inhibitors are often tested in cell lines").
+    - 0.0 (None): No evidence found.
 
     For evidence: 
     Extract EXACT sentences from the text that support the mechanism.
