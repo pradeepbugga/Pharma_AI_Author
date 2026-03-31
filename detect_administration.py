@@ -1,6 +1,6 @@
 from utils.llm import call_llm
 
-def detect_admin(drug_name, admin_chunks, context_memory):
+def detect_admin(drug_name, admin_chunks, model_chunks, context_memory):
     prompt = f"""
 
     You are identifying ALL contexts in which a drug is administered.
@@ -8,54 +8,64 @@ def detect_admin(drug_name, admin_chunks, context_memory):
     Drug:
     {drug_name}
 
-    Context:
+    Explicit administration snippets:
     {admin_chunks}
 
+    Model context snippets (may imply administration):
+    {model_chunks}
+
     Context Memory:
-    Previous analysis determined the study models are {context_memory}.
+    The study includes: {context_memory}
 
     Important:
-    - These are ALL known administration-related snippets
-    - Some may correspond to different experimental settings
-
+    - Explicit snippets contain administration verbs (e.g., "treated with")
+    - Model snippets may describe outcomes (e.g., tumor regression)
 
     Task:
-    Determine whether the drug is administered in each of the following:
+    Determine whether the drug is administered in:
 
-    1. In vitro (cell-based treatment)
-    2. In vivo (animal studies)
-    3. Clinical (human patients)
+    1. In vitro
+    2. In vivo
+    3. Clinical
 
     Rules:
-    - A category is TRUE only if there is clear evidence of treatment/administration
-    - "cells treated with" → in vitro
-    - "mice treated with", "xenograft" → in vivo
-    - "patients", "clinical trial" → clinical
-    - Binding assays or biochemical assays → NOT administration
-
-    - You MUST consider ALL snippets collectively
-    - Do NOT rely on a single snippet
-    - If multiple types are present → mark all as true
+    - If explicit snippets show administration → evidence_type = "explicit"
+    - If only model/context snippets imply administration → evidence_type = "inferred"
+    - Outcome-only statements (inhibition, regression) → inferred
+    - Do NOT treat inferred evidence as explicit
+    - PDX → in vivo, not clinical
 
 
-    For evidence: 
-        Extract EXACT sentences from the text that support the mechanism.
-        Do NOT summarize.
-        Return verbatim quotes only.
+    Confidence scoring:
+    1.0 (Certain): The text explicitly names the drug, the dose/concentration, and the specific model (e.g., "Mice were treated with 30mg/kg MRTX1133").
+    0.8 (High): The text describes a clear result of the drug in a specific model, but the exact administration details are in a different snippet.
+    0.5 (Medium): The drug is mentioned in the same paragraph as a model, but the connection is vague or the evidence is heavily "inferred" from secondary outcomes.
+    < 0.3 (Low): The snippet mentions the drug and the model type (e.g., "xenograft") but in a general context (e.g., "Future studies should look at xenografts").
 
 
     Return JSON:
     {{
-    "in_vitro": true/false,
-    "in_vivo": true/false,
-    "clinical": true/false,
-    "evidence": {{
-        "in_vitro": "...",
-        "in_vivo": "...",
-        "clinical": "..."
+    "in_vitro": {{
+        "value": true/false,
+        "evidence_type": "explicit | inferred | none",
+        "evidence": "...",
+        "confidence": 0-1
+    }},
+    "in_vivo": {{
+        "value": true/false,
+        "evidence_type": "explicit | inferred | none",
+        "evidence": "...",
+        "confidence": 0-1
+    }},
+    "clinical": {{
+        "value": true/false,
+        "evidence_type": "explicit | inferred | none",
+        "evidence": "...",
+        "confidence": 0-1
     }},
     "confidence": 0-1
     }}
     """
+
     return call_llm(prompt)
 
