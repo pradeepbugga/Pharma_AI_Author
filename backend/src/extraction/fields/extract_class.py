@@ -1,4 +1,4 @@
-from utils.llm import call_llm
+from backend.src.utils.llm import call_llm
 
 
 # this function extracts the drug class based on the mechanism of action described in the text, without relying on explicit labels. 

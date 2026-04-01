@@ -1,4 +1,4 @@
-from utils.llm import call_llm
+from backend.src.utils.llm import call_llm
 
 # this function is used to extract the formulation information for the identified drug.
 # it takes in the drug name and the identified chunks that passed filter for formulation keywords as context

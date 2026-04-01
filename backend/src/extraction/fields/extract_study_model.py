@@ -1,4 +1,4 @@
-from utils.llm import call_llm
+from backend.src.utils.llm import call_llm
 
 # this script is used to extract the study model (in vitro, in vivo, clinical) based on the text evidence.
 # it takes in the drug name, the identified chunks that passed filter for model type keywords 

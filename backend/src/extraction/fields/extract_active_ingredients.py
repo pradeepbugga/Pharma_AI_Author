@@ -1,4 +1,4 @@
-from utils.llm import call_llm
+from backend.src.utils.llm import call_llm
 
 # this function is used to extract the active ingredients field 
 # it takes in the identified drug name, the list of identified drug candidates (from NER and classification), and the text as context.
