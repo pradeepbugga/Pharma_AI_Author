@@ -25,6 +25,14 @@ def extract_class_info(drug_name, abstract_text):
     - Do not return generic labels like "drug" or "biologic"
     - If not stated, return null
 
+    Confidence scoring:
+    - 1.0 (Explicit): The text provides a formal classification and the specific molecular target (e.g., "Compound X is a potent, selective inhibitor of JAK2").
+    - 0.8 (Strong Inference): The drug's mechanism is described in detail, but the "class" name must be constructed (e.g., "Drug X binds to Y and prevents Z").
+    - 0.5 (Generic): The text mentions the general category but lacks specific target/modality details (e.g., "an experimental anticancer biologic").
+    - 0.3 (Ambiguous): The drug is mentioned alongside others, making it unclear if the class applies specifically to "{drug_name}".
+    - 0.1 (Hallucination Risk): The text mentions the disease area (e.g., "anti-diabetic treatment") but does not describe the pharmacological mechanism of the drug itself.
+
+
     Return JSON:
     {{ "class": "...", "modality": "...", "confidence": 0-1 }}
     """
