@@ -1,6 +1,6 @@
 import re
-from utils.llm import call_llm
-
+from backend.src.utils.llm import call_llm
+from backend.src.retrieval.context_utils import get_context
 # this script is used to extract dose information 
 
 
@@ -19,22 +19,15 @@ def extract_dose_candidates(text):
 
     return [m[0] for m in matches]
 
-def get_context(text, value, window=100):
-    idx = text.lower().find(value.lower())
-    if idx == -1:
-        return ""
-
-    start = max(0, idx - window)
-    end = min(len(text), idx + window)
-    return text[start:end]
-
 # next we get the context (text snippets) around the identified candidates to pass to LLM
 
 def get_dose_contexts(text, candidates):
     results = []
 
     for c in candidates:
-        ctx = get_context(text, c)
+        ctx_list = get_context(text, c)
+
+        ctx = "\n---\n".join(ctx_list)
         results.append({
             "value": c,
             "context": ctx
