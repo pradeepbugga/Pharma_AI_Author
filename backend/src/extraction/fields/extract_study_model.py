@@ -1,10 +1,10 @@
 from utils.llm import call_llm
 
-# this script is used to detect the study model (in vitro, in vivo, clinical) based on the text evidence.
+# this script is used to extract the study model (in vitro, in vivo, clinical) based on the text evidence.
 # it takes in the drug name, the identified chunks that passed filter for model type keywords 
 # and the text as context.  The output is useful for downstream extraction of fields such as administration and dose
 
-def detect_model(drug_name, in_vitro_chunks, in_vivo_chunks, clinical_chunks):
+def extract_model(drug_name, in_vitro_chunks, in_vivo_chunks, clinical_chunks):
     prompt = f"""
 
     Task:
