@@ -1,8 +1,46 @@
 import pubchempy as pcp
 import requests
 
-# this function is needed because PubChem's PUG REST API doesn't return descriptions in the same call as the compound search, 
-# so we need to make a second call to get the description text for the compound.
+
+# We can use pubchempy to speak to PubChem REST API to cross-check compounds
+
+def lookup_compound(entity:str):
+    results = pcp.get_compounds(entity, 'name')
+        
+    if results:
+        cid = results[0].cid
+        description = get_pubchem_description(cid)
+        return {
+            "found": True,
+            "pubchem_id": cid,
+            "description": description,
+            "type": "compound"
+        }
+    return {
+        "found": False,
+        "pubchem_id": None,
+        "type": None
+        }
+
+# We can also look up substances (broader category than compounds)
+
+def lookup_substance(entity:str):
+    results = pcp.get_substances(entity, 'name')
+        
+    if results:
+        return
+        {
+            "found": True,
+            "pubchem_id": results[0].cid,
+            "type": "substance"
+        }
+    return {
+        "found": False,
+        "pubchem_id": None,
+        "type": None
+        }
+
+# Below functions to get the descriptions associated with PubChem entries
 
 def extract_all_descriptions(pug_view_json):
     descriptions = []
@@ -20,6 +58,8 @@ def extract_all_descriptions(pug_view_json):
                             descriptions.append(text)
                             
     return " ".join(descriptions)
+
+
 
 def get_pubchem_description(cid):
     if not cid:
@@ -43,39 +83,8 @@ def get_pubchem_description(cid):
 
 
 
-def lookup_compound(entity:str):
-    results = pcp.get_compounds(entity, 'name')
-        
-    if results:
-        cid = results[0].cid
-        description = get_pubchem_description(cid)
-        return {
-            "found": True,
-            "pubchem_id": cid,
-            "description": description,
-            "type": "compound"
-        }
-    return {
-        "found": False,
-        "pubchem_id": None,
-        "type": None
-        }
-
-def lookup_substance(entity:str):
-    results = pcp.get_substances(entity, 'name')
-        
-    if results:
-        return
-        {
-            "found": True,
-            "pubchem_id": results[0].cid,
-            "type": "substance"
-        }
-    return {
-        "found": False,
-        "pubchem_id": None,
-        "type": None
-        }
 
 if __name__ == "__main__":
-    print(lookup_compound("BYL-719"))
+    cid = lookup_compound("Aspirin")
+    description = get_pubchem_description(cid["pubchem_id"])
+    print(f"CID: {cid['pubchem_id']}, Description: {description}")
