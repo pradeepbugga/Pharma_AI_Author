@@ -1,6 +1,11 @@
 from utils.llm import call_llm
 
-def extract_class_info(drug_name, text):
+
+# this function extracts the drug class based on the mechanism of action described in the text, without relying on explicit labels. 
+#  It also returns a confidence score for how well supported the class is based on the text.
+# we use the identified drug name and the abstract text as context
+
+def extract_class_info(drug_name, abstract_text):
     prompt = f"""
 
     Extract the pharmacological class of the drug "{drug_name}" based on the following text from a biomedical manuscript:
@@ -24,6 +29,9 @@ def extract_class_info(drug_name, text):
     {{ "class": "...", "modality": "...", "confidence": 0-1 }}
     """
     return call_llm(prompt)
+
+# this function takes the extracted class info and tries to falsify it 
+# by looking for mechanistic evidence in the results section
 
 def falsify_class_info(drug_name,drug_class, modality, non_abstract_text):
     prompt = f"""
