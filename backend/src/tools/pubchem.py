@@ -6,7 +6,10 @@ import requests
 
 def lookup_compound(entity:str):
     results = pcp.get_compounds(entity, 'name')
-        
+
+
+    # CID is the PubChem identifier (compound ID)
+
     if results:
         cid = results[0].cid
         description = get_pubchem_description(cid)
