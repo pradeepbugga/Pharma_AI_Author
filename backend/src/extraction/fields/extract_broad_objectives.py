@@ -4,7 +4,7 @@ from backend.src.utils.llm import call_llm
 # this function is used to detect the broad objectives of the study based on the text evidence.
 # it takes drug name identified along with abstract and discussion text
 
-def detect_objectives(drug_name, abstract_discussion_text):
+def extract_objectives(drug_name, abstract_discussion_text):
     prompt = f"""
 
     Summarize the broad objective of the study in 1–2 sentences.

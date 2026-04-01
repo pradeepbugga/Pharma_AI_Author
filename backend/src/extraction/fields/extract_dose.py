@@ -67,7 +67,7 @@ def summarize_dose_range(in_vivo_doses):
 # we use the identified drug name, the in vivo candidate dose phrases, the context around those phrases, and the administration contexts 
 # as additional information to help the LLM make a decision
 
-def detect_dose_LLM(drug_name, in_vivo_candidates, candidate_context, admin_chunks, context_memory):
+def extract_dose_LLM(drug_name, in_vivo_candidates, candidate_context, admin_chunks, context_memory):
     prompt = f"""
 
     You are validating in vivo dosing information for a drug.
