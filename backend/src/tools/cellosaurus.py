@@ -36,105 +36,123 @@ def lookup_cell_line(entity_name: str, session = None) -> dict:
 
     #print("QUERY:", entity_name)  # debug print
 
-    try:
-        response = session.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
+    # simple retry
 
-        results = data.get("Cellosaurus", {}).get("cell-line-list", [])
-      
+    for attempt in range(3):
 
-        if not results:
-            return {"found": False}
+        try:
+            response = session.get(url, params=params, timeout=10)
+            response.raise_for_status()
+            data = response.json()
 
-        entity_norm = normalize_name(entity_name)
+            # Cellosaurus returns a list of matches under "cell-line-list"
 
-        best_match = None
+            results = data.get("Cellosaurus", {}).get("cell-line-list", [])
+        
 
-        for match in results[:10]:
-            names = []
+            if not results:
+                return {"found": False}
 
-            # main names
-            for n in match.get("name-list", []):
-                names.append(n.get("value", ""))
+            entity_norm = normalize_name(entity_name)
 
-            # child names
-            for c in match.get("child-list", []):
-                if c.get("name"):
-                    names.append(c["name"]["value"])
+            best_match = None
 
-            # accessions
-            for acc in match.get("accession-list", []):
-                names.append(acc.get("value", ""))
+            # we are looking through top 10 results (this should be enough)
 
-            # derived
+            for match in results[:10]:
+                names = []
 
-            for parent in match.get("derived-from", []):
-                names.append(parent.get("label", ""))
-                names.append(parent.get("accession", ""))
+                # find all locations of names in JSON
 
-            # normalize and compare
-            for n in names:
-                if normalize_name(n) == entity_norm:
-                    best_match = match
+                # main names
+                for n in match.get("name-list", []):
+                    names.append(n.get("value", ""))
+
+                # child names
+                for c in match.get("child-list", []):
+                    if c.get("name"):
+                        names.append(c["name"]["value"])
+
+                # accessions
+                for acc in match.get("accession-list", []):
+                    names.append(acc.get("value", ""))
+
+                # derived
+
+                for parent in match.get("derived-from", []):
+                    names.append(parent.get("label", ""))
+                    names.append(parent.get("accession", ""))
+
+                # normalize and compare
+                for n in names:
+                    if normalize_name(n) == entity_norm:
+                        best_match = match
+                        break
+
+                if best_match:
                     break
 
-            if best_match:
-                break
+        
+            if not best_match:
+                return {
+                    "found": False,
+                    "type": "cell_line",
+                    "cvcl": None,
+                    "atcc_id": None,
+                    "canonical_name": None,
+                    "source": "cellosaurus"
+                }
 
-      
-        if not best_match:
+            #Cellosaurus JSON shows the parent cell line if an unnormalized query is entered
+
+            # PRIORITIZE parent if exists
+            parent = best_match.get("derived-from", [])
+
+
+            if parent:
+                cvcl_id = parent[0].get("accession")
+                canonical_name = parent[0].get("label")
+
+                # we will use the Cellosaurus CVCL ID as the main identifier for cell lines
+
+                canonical_data = lookup_cell_line_by_cvcl(cvcl_id, session)
+
+                canonical_results = canonical_data.get("Cellosaurus", {}).get("cell-line-list", []) if canonical_data else []
+
+                if canonical_results:
+                    match = next(
+                        (m for m in canonical_results if m.get("accession-list", [{}])[0].get("value") == cvcl_id),
+                        canonical_results[0]
+                    )
+                    atcc_entry = extract_atcc(match)
+                else:
+                    atcc_entry = None
+
+            else:
+                cvcl_list = best_match.get("accession-list", [])
+                cvcl_id = cvcl_list[0].get("value") if cvcl_list else None
+                canonical_name = entity_name
+                atcc_entry = extract_atcc(best_match)     
+
             return {
-                "found": False,
+                "found": cvcl_id is not None,
                 "type": "cell_line",
-                "cvcl": None,
-                "atcc_id": None,
-                "canonical_name": None,
+                "cvcl": cvcl_id,
+                "cellosaurus_url": f"https://www.cellosaurus.org/{cvcl_id}" if cvcl_id else None,
+                "atcc_id": atcc_entry.get("accession") if atcc_entry else None,
+                "canonical_name": canonical_name,
                 "source": "cellosaurus"
             }
 
-        # PRIORITIZE parent if exists
-        parent = best_match.get("derived-from", [])
+        except Exception as e:
+            if attempt == 2:
+                return {
+                    "found": False,
+                    "error": str(e)
+                }
+            time.sleep(2 ** attempt)  # exponential backoff
 
-
-        if parent:
-            cvcl_id = parent[0].get("accession")
-            canonical_name = parent[0].get("label")
-
-            canonical_data = lookup_cell_line_by_cvcl(cvcl_id, session)
-
-            canonical_results = canonical_data.get("Cellosaurus", {}).get("cell-line-list", []) if canonical_data else []
-
-            if canonical_results:
-                match = next(
-                    (m for m in canonical_results if m.get("accession-list", [{}])[0].get("value") == cvcl_id),
-                    canonical_results[0]
-                )
-                atcc_entry = extract_atcc(match)
-            else:
-                atcc_entry = None
-
-        else:
-            cvcl_list = best_match.get("accession-list", [])
-            cvcl_id = cvcl_list[0].get("value") if cvcl_list else None
-            canonical_name = entity_name
-            atcc_entry = extract_atcc(best_match)     
-
-        return {
-            "found": cvcl_id is not None,
-            "type": "cell_line",
-            "cvcl": cvcl_id,
-            "cellosaurus_url": f"https://www.cellosaurus.org/{cvcl_id}" if cvcl_id else None,
-            "atcc_id": atcc_entry.get("accession") if atcc_entry else None,
-            "canonical_name": canonical_name,
-            "source": "cellosaurus"
-        }
-
-    except Exception as e:
-        return {
-            "found": False,
-            "error": str(e)
-        }
+# this function looks up cell line by CVCL ID (unlike above which uses free text search)
 
 def lookup_cell_line_by_cvcl(cvcl_id, session=None):
     if session is None:
@@ -142,12 +160,17 @@ def lookup_cell_line_by_cvcl(cvcl_id, session=None):
 
     url = f"https://api.cellosaurus.org/cell-line/{cvcl_id}"
 
-    try:
-        resp = session.get(url, timeout=10)
-        resp.raise_for_status()
-        return resp.json()
-    except Exception:
-        return None
+    for attempt in range(3):
+        try:
+            resp = session.get(url, timeout=10)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception:
+            if attempt == 2:
+                return None
+            time.sleep(2 ** attempt)  # exponential backoff
+
+# cell lines can have different forms so we will try to handle those 
 
 def generate_surface_forms(entity):
     forms = set()
@@ -163,6 +186,8 @@ def generate_surface_forms(entity):
     forms.add(re.sub(r'([A-Za-z])(\d)', r'\1 \2', entity))
 
     return forms
+
+# can use this to filter entities that look like cell lines before calling Cellosaurus API to save time and avoid false positives
 
 def looks_like_cell_line(entity):
     return any(c.isdigit() for c in entity) and len(entity) <= 10
