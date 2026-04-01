@@ -1,10 +1,8 @@
 import re
-from utils.llm import call_llm
-from detect_dose import get_context
+from backend.src.utils.llm import call_llm
+from backend.src.retrieval.context_utils import get_context
 
 # this script is used to extract and normalize treatment duration information for in vivo studies.
-
-
 
 # First we use regex to identify candidate duration phrases in the text
 DURATION_PATTERNS = [
