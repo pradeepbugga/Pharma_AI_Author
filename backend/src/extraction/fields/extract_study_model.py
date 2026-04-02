@@ -4,16 +4,16 @@ from backend.src.utils.llm import call_llm
 # it takes in the drug name, the identified chunks that passed filter for model type keywords 
 # and the text as context.  The output is useful for downstream extraction of fields such as administration and dose
 
-def extract_model(drug_name, in_vitro_chunks, in_vivo_chunks, clinical_chunks):
+def extract_model(drug_name, study_model_context):
     prompt = f"""
 
     Task:
     You are classifying experimental model types for a study involving the drug {drug_name}.
 
     Evidence:
-    - In vitro: {in_vitro_chunks}
-    - In vivo: {in_vivo_chunks}
-    - Clinical: {clinical_chunks}
+    - In vitro: {study_model_context['in_vitro']}
+    - In vivo: {study_model_context['in_vivo']}
+    - Clinical: {study_model_context['clinical']}
 
     Choose one:
     - in_vitro (cell-based experiments)
