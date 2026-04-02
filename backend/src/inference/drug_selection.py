@@ -3,6 +3,16 @@ from backend.src.utils.llm import call_llm
 # this script is used to select the primary drug being studied in the manuscript from the list of drug candidates identified from the NER step.
 # it takes in the drug candidates and the text of the manuscript as context to make the decision
 
+
+# this function first extracts the drug candidates to pass into below function
+def extract_drug_candidates(classified_entities):
+    return [
+        e["entity"]
+        for e in classified_entities
+        if e["label"] == "drug"
+    ]
+
+
 def select_primary_drug(drug_candidates, text):
     prompt = f"""
 You are analyzing a biomedical manuscript.
