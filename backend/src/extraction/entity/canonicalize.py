@@ -1,5 +1,6 @@
-from utils.llm import call_llm
+from backend.src.utils.llm import call_llm
 
+# this script uses an LLM to canonicalize the identified entities from the NER step.
 
 def canonicalize_entity(entity):
     prompt = f"""
