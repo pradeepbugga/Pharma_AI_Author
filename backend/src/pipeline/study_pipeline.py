@@ -10,6 +10,10 @@ from backend.src.extraction.fields.extract_dose import extract_dose_LLM
 from backend.src.study_context.duration import build_duration_context
 from backend.src.extraction.fields.extract_duration import extract_duration
 
+from backend.src.study_context.formulation import build_formulation_context
+from backend.src.extraction.fields.extract_formulation import extract_formulation
+
+from backend.src.extraction.fields.extract_broad_objectives import extract_objectives
 
 def run_study_pipeline(primary_drug, sections):
     
@@ -40,8 +44,16 @@ def run_study_pipeline(primary_drug, sections):
     formulation_result = extract_formulation(primary_drug, formulation_context)
 
 
-    return: {
-        "result": result,
-        "context": context
-    }
+    # BROAD OBJECTIVES EXTRACTION
 
+    broad_objectives = extract_objectives(primary_drug, sections['abstract'] + "" + sections['discussion'])
+    
+
+    return: {
+        "study_model": study_result,
+        "administration": administration_result,
+        "dose": dose_result,
+        "duration": duration_result,
+        "formulation": formulation_result,
+        "broad_objectives": broad_objectives
+    }
