@@ -53,6 +53,7 @@ def run_study_pipeline(primary_drug, sections):
         "study_model": study_result,
         "administration": administration_result,
         "dose": dose_result,
+        "route": dose_result.get("route", "N/A"),
         "duration": duration_result,
         "formulation": formulation_result,
         "broad_objectives": broad_objectives
