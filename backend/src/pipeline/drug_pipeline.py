@@ -1,18 +1,18 @@
 
 
 
-def run_drug_pipeline(primary_drug, result, abstract_section, result_section):
+def run_drug_pipeline(primary_drug, result, sections):
     
     classified_entities = result.get("classified_entities", [])
 
 
     # PHARMACOLOGICAL CLASS EXTRACTION
-    pharmacological_class = extract_class_info(primary_drug, abstract_section)
+    pharmacological_class = extract_class_info(primary_drug, sections['abstract'])
     
     #print("\n=== PHARMACOLOGICAL CLASS OUTPUT ===")
     #print(json.dumps(pharmacological_class, indent=2))
 
-    falsification_result = falsify_class_info(primary_drug, pharmacological_class.get("class"), pharmacological_class.get("modality"), results_section)
+    falsification_result = falsify_class_info(primary_drug, pharmacological_class.get("class"), pharmacological_class.get("modality"), sections['results'])
     
     #print("\n=== FALSIFICATION OUTPUT ===")
     #print(json.dumps(falsification_result, indent=2))
@@ -31,7 +31,7 @@ def run_drug_pipeline(primary_drug, result, abstract_section, result_section):
 
     # ACTIVE INGREDIENT EXTRACTION
 
-    active_ingrediients = extract_active_ingredients(primary_drug, result.get("drug_candidates", []), result_section)
+    active_ingrediients = extract_active_ingredients(primary_drug, result.get("drug_candidates", []), sections['results'])
 
     return {
         "class": pharmacological_class,
