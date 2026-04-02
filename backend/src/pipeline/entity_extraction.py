@@ -1,4 +1,4 @@
-from backend.src.ingest.section_filter import filter_sections
+from backend.src.ingest.section_parser import parse_sections
 from backend.src.utils.text_cleaning import clean_biomedical_text
 
 def run_ner_pipeline(data,ner_model, labels):
@@ -8,9 +8,9 @@ def run_ner_pipeline(data,ner_model, labels):
     
     entities = []
 
-    filtered_sections = filter_sections(data)
+    sections = parse_sections(data)
 
-    for section in filtered_sections:
+    for section in [sections['abstract'], sections['results']]:
         text = section['section_text']
 
         cleaned_text = clean_biomedical_text(text)
