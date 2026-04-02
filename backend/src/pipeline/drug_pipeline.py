@@ -1,5 +1,7 @@
 
-
+from backend.src.extraction.fields.extract_class import extract_class_info, falsify_class_info
+from backend.src.extraction.fields.extract_formula import extract_structural_formula
+from backend.src.extraction.fields.extract_active_ingredients import extract_active
 
 def run_drug_pipeline(primary_drug, result, sections):
     
@@ -9,14 +11,8 @@ def run_drug_pipeline(primary_drug, result, sections):
     # PHARMACOLOGICAL CLASS EXTRACTION
     pharmacological_class = extract_class_info(primary_drug, sections['abstract'])
     
-    #print("\n=== PHARMACOLOGICAL CLASS OUTPUT ===")
-    #print(json.dumps(pharmacological_class, indent=2))
-
     falsification_result = falsify_class_info(primary_drug, pharmacological_class.get("class"), pharmacological_class.get("modality"), sections['results'])
     
-    #print("\n=== FALSIFICATION OUTPUT ===")
-    #print(json.dumps(falsification_result, indent=2))
-
 
     # STRUCTURAL FORMULA EXTRACTION
 
@@ -31,10 +27,10 @@ def run_drug_pipeline(primary_drug, result, sections):
 
     # ACTIVE INGREDIENT EXTRACTION
 
-    active_ingrediients = extract_active_ingredients(primary_drug, result.get("drug_candidates", []), sections['results'])
+    active_ingrediients = extract_active(primary_drug, result.get("drug_candidates", []), sections['results'])
 
     return {
-        "class": pharmacological_class,
+        "pharmacological_class": pharmacological_class,
         "falsification": falsification_result,
         "structural_formula": formula,
         "active_ingredients": active_ingrediients
