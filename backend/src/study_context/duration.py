@@ -1,7 +1,8 @@
 
-from backend.src.utils.chunk_and_retrieve import split_into_chunks, retrieve_chunks_simple
+from backend.src.extraction.fields.extract_duration import extract_duration_candidates, get_duration_contexts
 
-# this function 
+# this function builds the context for duration extraction. It uses keyword filtering 
+# similar to what we do for study model and administration
 
 def build_duration_context(sections):
 
