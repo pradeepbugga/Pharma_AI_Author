@@ -1,6 +1,7 @@
 import re
 from backend.src.utils.llm import call_llm
 from backend.src.retrieval.context_utils import get_context
+from collections import defaultdict
 
 # this script is used to extract and normalize treatment duration information for in vivo studies.
 
@@ -179,3 +180,28 @@ def normalize_durations(grouped_data, context_memory):
     }}
   """
   return call_llm(prompt)
+
+def extract_duration(primary_drug, context_data, admin_chunks, admin_results, dose_results):
+    
+    duration_contexts = context_data["duration_contexts"]
+
+    full_metadata = []
+    grouped_by_class = defaultdict(list)
+
+    for candidate, snippet in duration_contexts.items():
+        
+        llm_output = extract_duration_LLM(primary_drug, candidate, snippet, admin_chunks, admin_results, dose_results)
+
+        classification = llm_output["classification"]
+
+        record = {
+            "value": candidate,
+            "classification": classification,
+            "evidence": llm_output.get("evidence", ""),
+            "confidence": llm_output.get("confidence", 0)
+        }
+
+        full_metadata.append(record)
+        grouped_by_class[classification].append(candidate)
+
+    return normalize_durations(grouped_by_class, full_metadata)
