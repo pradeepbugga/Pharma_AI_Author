@@ -1,5 +1,5 @@
 import requests
-import re
+import re, time
 
 # this script is for filtering entities that look like cell lines 
 # and cross checking against Cellosaurus API
