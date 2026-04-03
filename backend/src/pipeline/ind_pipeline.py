@@ -79,7 +79,8 @@ def run_ind_pipeline(entity_counts, paper_path):
         ind_intro = synthesize_clinical(fields, ind_study_context)
     print(ind_intro)
    
-    return fields, ind_intro, has_human_data
+    return {
+        "fields": fields,
+        "ind_intro": ind_intro
+            }
 
-if __name__ == "__main__":
-    run_ind_pipeline(ENTITY_COUNTS_PATH, PAPER_PATH)
