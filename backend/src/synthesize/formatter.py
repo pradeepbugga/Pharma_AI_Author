@@ -3,15 +3,22 @@
 # for output in the final structured data. 
 
 def format_duration_field(normalized_output):
-        # 1. Prioritize the main treatment duration (usually the longest or highest confidence)
         admin_durations = normalized_output.get("administration_duration", [])
         
         if admin_durations:
-            # Sort by confidence or length (e.g., picking 28 days over 7 days)
-            primary = max(admin_durations, key=lambda x: x['confidence'])
-            main_value = primary['normalized_value']
+            # 1. If there are multiple values, we can attempt to create a range 
+            values = sorted({
+                item['normalized_value']: item for item in admin_durations
+            })
+
+            if len(values) == 1:
+                main_value = values[0]
+            else:
+                main_value = f"{values[0]} to {values[-1]}"
+            status = "present"
         else:
             main_value = "Not specified"
+            status = "missing"
 
         # 2. Combine all evidence across all categories for full traceability
         all_evidence = []
@@ -23,7 +30,7 @@ def format_duration_field(normalized_output):
 
         return {
             "value": main_value,
-            "status": "present" if admin_durations else "absent",
+            "status": status,
             "source": "llm_derived",
             "additional_info": f'Evidence: {full_source}'
         }
