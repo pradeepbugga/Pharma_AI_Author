@@ -206,4 +206,36 @@ def extract_duration(primary_drug, context_data, admin_chunks, admin_results, do
         full_metadata.append(record)
         grouped_by_class[classification].append(candidate)
 
-    return normalize_durations(grouped_by_class, full_metadata)
+    return normalize_durations_deterministic(grouped_by_class, full_metadata)
+
+
+# below are deterministic normalization functions to be used instead of 
+# the above LLM-based normalization if we want to be more strict and transparent in how we normalize the durations.
+
+def normalize_duration_value(raw):
+    match = re.search(r"\d+", raw.lower())
+    if not match:
+        return None
+    return f"{int(match.group())} days"
+
+
+def normalize_durations_deterministic(grouped_data, full_metadata):
+    output = {}
+
+    for category, values in grouped_data.items():
+        normalized_set = set()
+
+        for v in values:
+            norm = normalize_duration_value(v)
+            if norm:
+                normalized_set.add(norm)
+
+        # sort numerically
+        def extract_days(x):
+            return int(re.search(r"\d+", x).group())
+
+        sorted_vals = sorted(normalized_set, key=extract_days)
+
+        output[category] = sorted_vals
+
+    return output
