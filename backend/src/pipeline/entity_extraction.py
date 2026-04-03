@@ -1,18 +1,18 @@
 from backend.src.ingest.section_parser import parse_sections
 from backend.src.utils.text_cleaning import clean_biomedical_text
 
+# this function runs the NER pipeline on the filtered sections of the paper. 
+# it takes in the raw data, the NER model, and the list of labels to extract.
+# it returns a list of identified entities with their labels and the text evidence.
+
 def run_ner_pipeline(data,ner_model, labels):
-    # this function runs the NER pipeline on the filtered sections of the paper. 
-    # it takes in the raw data, the NER model, and the list of labels to extract.
-    # it returns a list of identified entities with their labels and the text evidence.
-    
+       
     entities = []
 
     sections = parse_sections(data)
 
     for section in [sections['abstract'], sections['results']]:
         
-
         cleaned_text = clean_biomedical_text(section)
 
         # if text has multiple paragraphs, split them and predict entities for each paragraph
