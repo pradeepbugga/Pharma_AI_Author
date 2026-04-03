@@ -20,7 +20,7 @@ def run_study_pipeline(primary_drug, sections):
     # STUDY MODEL CONTEXT BUILDING AND STUDY MODEL EXTRACTION
     
     study_context = build_study_model_context(primary_drug, sections['abstract'] + "" + sections['results'])
-    study_result = extract_model(primary_drug, context)
+    study_result = extract_model(primary_drug, study_context)
 
     # ADMINISTRATION CONTEXT BUILDING AND EXTRACTION
 
@@ -30,7 +30,7 @@ def run_study_pipeline(primary_drug, sections):
     # DOSE CONTEXT BUILDING AND EXTRACTION
 
     in_vivo_dose_candidates, dose_contexts = build_dose_context(primary_drug, sections)
-    dose_result = extract_dose_LLM(primary_drug, split_dose_candidates[0], dose_contexts, admin_context["admin_chunks"], administration_result)
+    dose_result = extract_dose_LLM(primary_drug, in_vivo_dose_candidates, dose_contexts, admin_context["admin_chunks"], administration_result)
 
     # DURATION CONTEXT BUILDING AND EXTRACTION
 
@@ -49,7 +49,7 @@ def run_study_pipeline(primary_drug, sections):
     broad_objectives = extract_objectives(primary_drug, sections['abstract'] + "" + sections['discussion'])
     
 
-    return: {
+    return {
         "study_model": study_result,
         "administration": administration_result,
         "dose": dose_result,
@@ -58,3 +58,20 @@ def run_study_pipeline(primary_drug, sections):
         "formulation": formulation_result,
         "broad_objectives": broad_objectives
     }
+
+if __name__ == "__main__":
+    # Example usage
+    import json
+
+    primary_drug = "MRTX1183"
+
+    PAPER_PATH = "./backend/src/data/papers/PMID_36216931/raw_text.json"
+    # Load manuscript text (your JSON file)
+    with open(PAPER_PATH) as f:
+        data = json.load(f)
+
+    from backend.src.ingest.section_parser import parse_sections
+    sections = parse_sections(data)
+    
+    results = run_study_pipeline(primary_drug, sections)
+    print(results)
