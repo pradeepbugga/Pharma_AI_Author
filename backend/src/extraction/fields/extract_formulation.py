@@ -40,7 +40,6 @@ def extract_formulation(drug_name, formulation_chunks):
       "vehicle": "...",
       "excipients": [...],
       "formulation_description": "...",
-      "status": "present | partial | missing",
       "evidence": "exact sentence",
       "confidence": 0-1
     }}
