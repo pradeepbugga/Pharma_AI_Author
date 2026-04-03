@@ -19,18 +19,21 @@ def extract_structural_formula(drug, modality, pubchem_info):
 
     if pubchem_info.get("compound") and pubchem_info.get("cid"):
 
-        # Fetch compound info from PubChem
-        cid = pubchem_info["cid"]
-        pubchem_data = pcp.Compound.from_cid(cid).to_dict()
-      
-        return {
-            "value": {
-            "molecular_formula": pubchem_data["molecular_formula"],
-            "smiles": pubchem_data["smiles"],
-            "inchi": pubchem_data["inchi"]},
-            "status": "present",
-            "source": "pubchem"
-        }
+        try:
+            # Fetch compound info from PubChem
+            cid = pubchem_info["cid"]
+            pubchem_data = pcp.Compound.from_cid(cid).to_dict()
+        
+            return {
+                "value": {
+                "molecular_formula": pubchem_data["molecular_formula"],
+                "smiles": pubchem_data["smiles"],
+                "inchi": pubchem_data["inchi"]},
+                "status": "present",
+                "source": "pubchem"
+            }
+        except Exception as e:
+            pass
 
     return {
         "value": {
