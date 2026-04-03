@@ -188,7 +188,9 @@ def extract_duration(primary_drug, context_data, admin_chunks, admin_results, do
     full_metadata = []
     grouped_by_class = defaultdict(list)
 
-    for candidate, snippet in duration_contexts.items():
+    for item in duration_contexts:
+        candidate = item["value"]
+        snippet = item["context"]
         
         llm_output = extract_duration_LLM(primary_drug, candidate, snippet, admin_chunks, admin_results, dose_results)
 
