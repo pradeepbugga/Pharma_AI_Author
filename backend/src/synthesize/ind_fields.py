@@ -1,88 +1,104 @@
-
+from backend.src.synthesize.formatter import format_duration_field
 
 def build_ind_fields(ind_context):
     
+
+    def assign_status(value):
+        if value is None:
+            return "missing"
+        if value == "not_applicable":
+            return "not_applicable"
+        return "present"
+
+
     # build final output
     fields = {}
 
+    # ----- DRUG NAME -----
+
     fields["Drug Name"] = {
-        "value": ind_context["drug_name"],
-        "status": assign_status(ind_context["drug_name"]),
-        "source": "text_extraction"
+        "value": ind_context["drug_name"]["primary_drug"],
+        "status": "present" if ind_context["drug_name"]["primary_drug"] else "missing",
+        "source": "llm derived"
+        "additional_info": f'Confidence: {ind_context["drug_name"]['confidence']}'
     }
+
+    # ----- PHARMACOLOGICAL CLASS -----
 
     fields["Pharmacological Class"] = {
         "value": ind_context["pharmacological_class"].get("class"),
-        "status": "present",
-        "source": "llm derived"
+        "status": "present" if ind_context["pharmacological_class"].get("class") else "missing",
+        "source": "llm derived",
+        "additional_info": f'Modality: {ind_context["pharmacological_class"].get("modality", "N/A")} | Evidence: {ind_context["falsification"].get("mechanism_evidence", "N/A")}'
     }
+
+    # ----- STRUCTURAL FORMULA ------
+
+    struct_formula_result = ind_context.get("structural_formula", {})
+    inner_values = struct_formula_result.get("value", {})
 
     fields["Structural Formula"] = {
-        "value": ind_context["structural_formula"].get("value").get("molecular_formula") if ind_context["structural_formula"].get("value") else None,
-        "status": "present" if ind_context["structural_formula"].get("value").get("molecular_formula") else "missing",
-        "source": "pubchem"
+        "value": inner_values.get("molecular_formula"),
+        "status": struct_formula_result.get("status", "missing"),
+        "source": struct_formula_result.get("source", "missing")
     }
+
+    # ----- ACTIVE INGREDIENTS -----
 
     fields["Active Ingredients"] = {
-        "value": ind_context["active_ingredients"].get("active_ingredients"),
-        "status": assign_status(ind_context["active_ingredients"].get("active_ingredients")),
-        "source": "llm derived"
+        "value": ind_context.get("active_ingredients",{}).get("active_ingredients"),
+        "status": assign_status(ind_context.get("active_ingredients",{}).get("active_ingredients")),
+        "source": "llm derived",
+        "additional_info": f'Confidence: {ind_context.get("active_ingredients",{}).get("confidence", "N/A")}'
     }   
 
-
+    # ----- FORMULATION -----
 
     fields["Formulation"] = {
-        "value": ind_context["formulation"].get("formulation_description"),
-        "status": ind_context["formulation"].get("status"),
-        "source": ind_context["formulation"].get("evidence", "")
-    }   
-
-    # Assuming 'dose' is the dictionary from your "DOSE OUTPUT"
-    dose_output = ind_context["dose"]
-
-    # Extract unit safely (e.g., "mg/kg" from "3 mg/kg")
-    unit = dose_output["dose_values"][0].split()[-1] if dose_output["dose_values"] else ""
-
-    # Map to your fields object
-    fields["Dose"] = {
-        # Use the pre-formatted range if it exists, otherwise join the list
-        "value": f"{dose_output.get('range', 'N/A')} ({dose_output.get('frequency', '')})",
-        "status": "present" if dose_output.get("valid") else "absent",
-        "source": f"Route: {dose_output.get('route', {}).get('standard')} | Evidence: {dose_output.get('evidence', '')}"
-    }
-
-    fields["Route of Administration"] = {
-        "value": ind_context["dose"].get("route"),  
-        "status": "present",
-        "source": ind_context["dose"].get("evidence", "")
-    }
-
-    def format_duration_field(normalized_output):
-        # 1. Prioritize the main treatment duration (usually the longest or highest confidence)
-        admin_durations = normalized_output.get("administration_duration", [])
-        
-        if admin_durations:
-            # Sort by confidence or length (e.g., picking 28 days over 7 days)
-            primary = max(admin_durations, key=lambda x: x['confidence'])
-            main_value = primary['normalized_value']
-        else:
-            main_value = "Not specified"
-
-        # 2. Combine all evidence across all categories for full traceability
-        all_evidence = []
-        for category, items in normalized_output.items():
-            for item in items:
-                all_evidence.append(f"[{category}] {item['normalized_value']}: {item['evidence']}")
-        
-        full_source = " | ".join(all_evidence)
-
-        return {
-            "value": main_value,
-            "status": "present" if admin_durations else "absent",
-            "source": full_source
+        "value": ind_context.get("formulation", {}).get("formulation_description"),
+        "status": assign_status(ind_context.get("formulation", {}).get("formulation_description")),
+        "source": "llm derived",
+        "additional_info": f'Evidence: {ind_context.get("formulation", {}).get("evidence", "N/A")} | Confidence: {ind_context.get("formulation", {}).get("confidence", "N/A")}'
         }
 
-    fields["Duration"] = format_duration_field(normalized_duration_results)
+
+    # ----- DOSE ------
+
+    dose_output = ind_context.get("dose", {})
+
+    # display dose value
+    if dose_output.get("dose_type") == "range" and dose_output.get("range"):
+        display_value = dose_output["range"]
+    elif dose_output.get("dose_values"):
+        # join if list
+        display_value = ", ".join(map(str, dose_output["dose_values"]))
+    else:
+        display_value = "N/A"
+
+
+    fields["Dose"] = {
+        
+        "value": f"{display_value} ({dose_output.get('frequency', 'N/A')})",
+        "status": "present" if dose_output.get("valid") else "missing",
+        "source": "llm derived",
+        "additional_info": f"Evidence: {dose_output.get('evidence', '')} | Confidence: {dose_output.get('confidence', 'N/A')} 
+        }
+
+
+    # ----- ROUTE OF ADMINISTRATION -----
+
+    fields["Route of Administration"] = {
+        "value": ind_context.get("dose", {}).get("route"),
+        "status": "present" if ind_context.get("dose", {}).get("route") else "missing",
+        "source": "llm derived",
+        "additional_info": f"Evidence: {ind_context.get('dose', {}).get('evidence', '')} | Confidence: {ind_context.get('dose', {}).get('confidence', 'N/A')}"
+    }
+
+    # ----- DURATION -----
+
+    formatted_duration = format_duration_field(ind_context.get("duration", {}))
+
+    fields["Duration"] = formatted_duration
 
     fields["Broad Objectives"] = {
         "value": ind_context["objectives"].get("objective"),
