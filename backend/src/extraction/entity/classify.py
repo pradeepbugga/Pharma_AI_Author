@@ -1,4 +1,4 @@
-from utils.llm import call_llm
+from backend.src.utils.llm import call_llm
 
 # this script is used to disambiguate the identified entities from the NER step.
 # it takes the entity, the context around the entity, and the evidence from external databases (e.g. PubChem, UniProt)
