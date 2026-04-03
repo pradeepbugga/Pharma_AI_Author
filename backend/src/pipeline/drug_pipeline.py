@@ -16,11 +16,10 @@ def run_drug_pipeline(primary_drug, result, sections):
 
     # STRUCTURAL FORMULA EXTRACTION
 
-    pubchem_info = next(
-        (e.get("evidence", {}).get("pubchem", {})
-            for e in classified_entities if e["entity"] == primary_drug),
-        {}
-    )
+    for entity_info in classified_entities:
+        if entity_info.get("entity") == primary_drug:
+            
+           pubchem_info = entity_info.get("evidence", {}).get("pubchem", {})
 
     formula = extract_structural_formula(primary_drug, pharmacological_class.get("modality"), pubchem_info)
 
