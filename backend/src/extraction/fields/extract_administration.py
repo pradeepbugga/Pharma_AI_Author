@@ -20,7 +20,7 @@ def extract_admin(drug_name, admin_chunks, model_chunks, study_context_memory):
     {model_chunks}
 
     Context Memory:
-    The study includes: {context_memory}
+    The study includes: {study_context_memory}
 
     Important:
     - Explicit snippets contain administration verbs (e.g., "treated with")
