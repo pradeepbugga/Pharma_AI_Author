@@ -9,7 +9,7 @@ def extract_class_info(drug_name, abstract_text):
     prompt = f"""
 
     Extract the pharmacological class of the drug "{drug_name}" based on the following text from a biomedical manuscript:
-    {text}
+    {abstract_text}
 
     Rules:
     - Identify the therapeutic modality (e.g., small molecule, antibody, mRNA, siRNA, gene therapy, cell therapy)
