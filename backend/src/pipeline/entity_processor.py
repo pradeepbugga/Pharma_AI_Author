@@ -1,3 +1,11 @@
+from backend.src.extraction.entity.canonicalize import canonicalize_entity
+from backend.src.extraction.entity.classify import classify_entity
+from backend.src.utils.context import get_entity_context
+from backend.src.evidence.format import compute_evidence_used
+from backend.src.evidence.gather import gather_evidence
+from backend.src.evidence.normalize import normalize_evidence
+from backend.src.validation.entity_validation import enforce_db_rules, validate_and_attach
+
 # this script is responsible for processing the extracted entities, 
 # gathering evidence for them from database APIs, and classifying them 
 
