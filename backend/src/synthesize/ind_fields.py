@@ -66,18 +66,20 @@ def build_ind_fields(ind_context):
     dose_output = ind_context.get("dose", {})
 
     # display dose value
-    if dose_output.get("dose_type") == "range" and dose_output.get("range"):
-        display_value = dose_output["range"]
-    elif dose_output.get("dose_values"):
-        # join if list
-        display_value = ", ".join(map(str, dose_output["dose_values"]))
-    else:
+    display_value = dose_output.get("range")
+
+    if not display_value:
         display_value = "N/A"
 
+    frequency = dose_output.get("frequency", "")
+    if frequency:
+        value = f"{display_value} ({frequency})"
+    else:
+        value = display_value
 
     fields["Dose"] = {
         
-        "value": f"{display_value} ({dose_output.get('frequency', 'N/A')})",
+        "value": value,
         "status": "present" if dose_output.get("valid") else "missing",
         "source": "llm derived",
         "additional_info": f"Evidence: {dose_output.get('evidence', '')} | Confidence: {dose_output.get('confidence', 'N/A')}"
