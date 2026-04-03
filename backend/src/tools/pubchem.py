@@ -1,14 +1,24 @@
 import pubchempy as pcp
-import requests
+import requests, time
 
 
 # We can use pubchempy to speak to PubChem REST API to cross-check compounds
 
 def lookup_compound(entity:str):
-    results = pcp.get_compounds(entity, 'name')
-
+    results = None
 
     # CID is the PubChem identifier (compound ID)
+
+    for attempt in range(3):
+        try:
+           time.sleep(1)  # brief pause to avoid hitting rate limits
+           results = pcp.get_compounds(entity, 'name')
+           break  # if successful, exit the retry loop
+
+        except Exception as e:
+            if attempt == 2:
+                print(f"Failed to retrieve compound for '{entity}' after 3 attempts: {e}")
+            time.sleep(2**attempt)  # exponential backoff
 
     if results:
         cid = results[0].cid
