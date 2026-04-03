@@ -1,4 +1,5 @@
 from backend.src.pipeline.entity_processor import process_entity
+import requests
 
 def run_entity_pipeline(entities, text):
     session = requests.Session()
@@ -14,7 +15,7 @@ def run_entity_pipeline(entities, text):
         
         seen.add(canonical)
 
-        classified_entities.append((canonical, result))
+        classified_entities.append(result)
 
         print(f"Processed entity: {canonical}, result: {result}")
 
