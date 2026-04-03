@@ -1,4 +1,4 @@
-from utils.llm import call_llm
+from backend.src.utils.llm import call_llm
 
 #  this script takes the extracted fields and synthesizes them into an 
 #  IND style introductory statement via LLM. 
