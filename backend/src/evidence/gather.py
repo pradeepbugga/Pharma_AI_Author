@@ -19,7 +19,7 @@ def gather_evidence(entity, session):
 
 
     # Heuristic: if no evidence found, try synonyms for cell lines (common issue)
-    if not evidence["cellosaurus"]["found"]:d
+    if not evidence["cellosaurus"]["found"]:
         for form in generate_surface_forms(entity):
             #print(f"Trying cell line synonym: {form}")
             if form != entity:
