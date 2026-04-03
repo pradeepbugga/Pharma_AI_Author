@@ -7,7 +7,7 @@ def build_dose_context(primary_drug, sections):
 
     text = sections['abstract'] + "" + sections['results']
     # Extract dose candidates from the text
-    dose_candidates = extract_dose_candidates(text, primary_drug)
+    dose_candidates = extract_dose_candidates(text)
 
     # Process the dose candidates: deduplicate, split by unit, and summarize dose range    
     deduped_dose_candidates = sorted(set([c.strip().lower() for c in dose_candidates]))
