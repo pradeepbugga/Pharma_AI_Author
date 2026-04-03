@@ -5,7 +5,7 @@ import pubchempy as pcp
 # we will get the molecular formula, SMILES, and InChI if CID is available.
 
 def extract_structural_formula(drug, modality, pubchem_info):
-    if modality != "small_molecule":
+    if modality != "small molecule":
         return {
             "value": {
 
