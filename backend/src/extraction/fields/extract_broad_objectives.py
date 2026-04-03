@@ -26,7 +26,7 @@ def extract_objectives(drug_name, abstract_discussion_text):
     {drug_name}
 
     Context:
-    {text}
+    {abstract_discussion_text}
 
     Rules:
     - Do NOT use vague phrases like "specific protein"
