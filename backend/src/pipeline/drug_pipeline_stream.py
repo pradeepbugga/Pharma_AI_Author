@@ -2,12 +2,16 @@
 from backend.src.extraction.fields.extract_class import extract_class_info, falsify_class_info
 from backend.src.extraction.fields.extract_formula import extract_structural_formula
 from backend.src.extraction.fields.extract_active_ingredients import extract_active
+import time
+import asyncio
 
-def run_drug_pipeline_stream(primary_drug, result, sections):
+
+async def run_drug_pipeline_stream(primary_drug, result, sections):
     
     classified_entities = result.get("classified_entities", [])
 
     yield {"status": "Extracting pharmacological class"}
+    await asyncio.sleep(0)
 
     # PHARMACOLOGICAL CLASS EXTRACTION
     pharmacological_class = extract_class_info(primary_drug, sections['abstract'])
@@ -15,6 +19,7 @@ def run_drug_pipeline_stream(primary_drug, result, sections):
     falsification_result = falsify_class_info(primary_drug, pharmacological_class.get("class"), pharmacological_class.get("modality"), sections['results'])
     
     yield {"status": "Extracting structural formula"}
+    await asyncio.sleep(0)
 
     # STRUCTURAL FORMULA EXTRACTION
 
@@ -26,6 +31,7 @@ def run_drug_pipeline_stream(primary_drug, result, sections):
     formula = extract_structural_formula(primary_drug, pharmacological_class.get("modality"), pubchem_info)
 
     yield {"status": "Extracting active ingredients"}
+    await asyncio.sleep(0)
 
     # ACTIVE INGREDIENT EXTRACTION
 

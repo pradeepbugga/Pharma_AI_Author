@@ -11,15 +11,18 @@ def run_ner_pipeline(data,ner_model, labels):
 
     sections = parse_sections(data)
 
-    for section in [sections['abstract'], sections['results']]:
+    for category in ['abstract', 'results']:
+        for section in sections[category]:
         
-        cleaned_text = clean_biomedical_text(section)
+            cleaned_text = clean_biomedical_text(section)
 
-        # if text has multiple paragraphs, split them and predict entities for each paragraph
-        text_sections = cleaned_text.split("\n\n")
+            # if text has multiple paragraphs, split them and predict entities for each paragraph
+            text_sections = cleaned_text.split("\n\n")
 
-        for text_section in text_sections:
-            section_entities = ner_model.extract(text_section, labels)
-            entities.extend(section_entities)
+            for text_section in text_sections:
+                section_entities = ner_model.extract(text_section, labels)
+                entities.extend(section_entities)
     
+    print(f"Extracted entities: {entities}")
+
     return entities

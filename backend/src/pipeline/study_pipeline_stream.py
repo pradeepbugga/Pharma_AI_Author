@@ -15,18 +15,23 @@ from backend.src.extraction.fields.extract_formulation import extract_formulatio
 
 from backend.src.extraction.fields.extract_broad_objectives import extract_objectives
 
-def run_study_pipeline(primary_drug, sections):
+import asyncio
+
+async def run_study_pipeline_stream(primary_drug, sections):
     
     # STUDY MODEL CONTEXT BUILDING AND STUDY MODEL EXTRACTION
 
     yield {"status": "Extracting study model"}
+    await asyncio.sleep(0)
     
-    study_context = build_study_model_context(primary_drug, sections['abstract'] + "" + sections['results'])
+    
+    study_context = build_study_model_context(primary_drug, " ".join(sections['abstract'] + sections['results']))
     study_result = extract_model(primary_drug, study_context)
 
     # ADMINISTRATION CONTEXT BUILDING AND EXTRACTION
 
     yield {"status": "Extracting administration details"}
+    await asyncio.sleep(0)
 
     admin_context = build_administration_context(primary_drug, sections, study_result, study_context)
     administration_result = extract_admin(primary_drug, admin_context["admin_chunks"], admin_context["model_chunks"], study_result)
@@ -34,6 +39,7 @@ def run_study_pipeline(primary_drug, sections):
     # DOSE CONTEXT BUILDING AND EXTRACTION
 
     yield {"status": "Extracting dose and route"}
+    await asyncio.sleep(0)
 
     in_vivo_dose_candidates, dose_contexts = build_dose_context(primary_drug, sections)
     dose_result = extract_dose_LLM(primary_drug, in_vivo_dose_candidates, dose_contexts, admin_context["admin_chunks"], administration_result)
@@ -41,6 +47,7 @@ def run_study_pipeline(primary_drug, sections):
     # DURATION CONTEXT BUILDING AND EXTRACTION
 
     yield {"status": "Extracting planned duration"}
+    await asyncio.sleep(0)
 
     duration_context = build_duration_context(sections)
     duration_result = extract_duration(primary_drug, duration_context, admin_context["admin_chunks"], administration_result, dose_result)
@@ -49,6 +56,7 @@ def run_study_pipeline(primary_drug, sections):
     # FORMULATION CONTEXT BUILDING AND EXTRACTION
 
     yield {"status": "Extracting formulation details"}
+    await asyncio.sleep(0)
 
     formulation_context = build_formulation_context(primary_drug, sections)
     formulation_result = extract_formulation(primary_drug, formulation_context)
@@ -57,8 +65,9 @@ def run_study_pipeline(primary_drug, sections):
     # BROAD OBJECTIVES EXTRACTION
 
     yield {"status": "Extracting broad objectives"}
+    await asyncio.sleep(0)
 
-    broad_objectives = extract_objectives(primary_drug, sections['abstract'] + "" + sections['discussion'])
+    broad_objectives = extract_objectives(primary_drug, " ".join(sections['abstract'] + sections['discussion']))
     
 
     yield {
