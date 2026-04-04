@@ -1,8 +1,10 @@
 export default function PDFPanel() {
   return (
-    <iframe
-      src="/paper.pdf"
-      className="w-full h-full"
-    />
+    <div className="pdf-container">
+       <iframe
+          src="/paper.pdf"
+          className="pdf-frame"
+        />
+    </div>
   );
 }
