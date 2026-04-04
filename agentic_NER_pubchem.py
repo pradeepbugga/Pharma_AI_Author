@@ -29,11 +29,42 @@ labels = ["drug"]
 
 entities = []
 
+import re
+
+def clean_biomedical_text(text):
+    if not text:
+        return ""
+
+    # 1. Handle the double-backslash LaTeX common in JSON strings
+    # This targets: $^{\mathrm{G12D}}$, ^{\mathrm{G12D}}, or ^{G12D}
+    # It converts them all to a simple dash + the mutation: -G12D
+    text = re.sub(r'\$?\^\{(\\mathrm\{)?(.*?)\}?\}\$?', r'-\2', text)
+
+    # 2. Specifically target the common "PI3K$\alpha$" pattern
+    # The double backslash in JSON is actually a single backslash in the string
+    text = re.sub(r'\\alpha', 'alpha', text)
+    text = re.sub(r'\\beta', 'beta', text)
+
+    # 3. Clean up any remaining LaTeX/Math leftovers
+    # Remove $, \, {, }
+    text = re.sub(r'[\$\{\}\\]', '', text)
+    
+    # 4. Remove common formatting and citations
+    text = re.sub(r'\\textit\{', '', text) # Remove italic start
+    text = re.sub(r'~', ' ', text)          # Non-breaking space
+    
+    # 5. Final whitespace cleanup
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
+
 for section in sections:
     text = section['section_text']
 
+    cleaned_text = clean_biomedical_text(text)
+
     # if text has multiple paragraphs, split them and predict entities for each paragraph
-    text_sections = text.split("\n\n")
+    text_sections = cleaned_text.split("\n\n")
 
     for text_section in text_sections:
         section_entities = model.predict_entities(text_section, labels)
@@ -53,6 +84,14 @@ for entity in entities:
 
 #for entity, count in entity_counts.items():
 #    print(f"{entity[0]} ({entity[1]}): {count}")
+
+
+# print entities name (no label) and counts into a json file
+with open("extracted_entities.json", "w") as f:
+    json.dump({entity[0]: count for entity, count in entity_counts.items()}, f, indent=4)
+
+'''
+
 
 
 # STEP 2 - Agentic Reasoning 
@@ -132,41 +171,51 @@ def cross_check_cell_line(entity_name, is_retry=False):
         if not result_list:
             return f"No matches found for {entity_name}."
 
-        first_match = result_list[0]
-
+        for match in result_list[:10]:  # Check top 10 matches
+            main_names = [n.get("value", "").lower() for n in match.get("name-list", [])]
+            child_names = [c.get('name', {}).get('value', '').lower() 
+                           for c in match.get('child-list', []) if c.get('name')]
+            accessions = [acc.get('value', '').lower() for acc in match.get('accession-list', [])]
        
+            all_names = main_names + child_names + accessions
 
-        parsed_results = {}
+            if entity_name.lower() in all_names:
+                first_match = match
+               
 
-        # 1. Basic IDs
-        cvcl_list = first_match.get("accession-list", [])
-        parsed_results['CVCL_ID'] = cvcl_list[0].get("value") if cvcl_list else None
-        parsed_results['Cellosaurus_URL'] = f"https://www.cellosaurus.org/{parsed_results['CVCL_ID']}" if parsed_results['CVCL_ID'] else None
+            parsed_results = {}
 
-        # 2. Find ATCC Data
-        atcc_entry = find_atcc_data(first_match)
-        
-        # 3. Handle Fallback Logic
-        if atcc_entry:
-            parsed_results['ATCC_ID'] = atcc_entry.get("accession")
-            parsed_results['ATCC_URL'] = f"https://www.atcc.org/products/{parsed_results['ATCC_ID']}"
-            # Use parent label as canonical name if available
-            parent_label = find_parent_label(first_match)
-            parsed_results['canonical_name'] = parent_label if parent_label else entity_name
-        else:
-            # NO ATCC found. Check for a parent/canonical name to retry.
-            parent_label = find_parent_label(first_match)
+            # 1. Basic IDs
+            cvcl_list = first_match.get("accession-list", [])
+            parsed_results['CVCL_ID'] = cvcl_list[0].get("value") if cvcl_list else None
+            parsed_results['Cellosaurus_URL'] = f"https://www.cellosaurus.org/{parsed_results['CVCL_ID']}" if parsed_results['CVCL_ID'] else None
+
+            # 2. Find ATCC Data
+            atcc_entry = find_atcc_data(first_match)
             
-            if parent_label and parent_label.lower() != entity_name.lower() and not is_retry:
-                # RECURSIVE CALL: Try again using the parent name
-                return cross_check_cell_line(parent_label, is_retry=True)
+            # 3. Handle Fallback Logic
+            if atcc_entry:
+                parsed_results['ATCC_ID'] = atcc_entry.get("accession")
+                parsed_results['ATCC_URL'] = f"https://www.atcc.org/products/{parsed_results['ATCC_ID']}"
+                # Use parent label as canonical name if available
+                parent_label = find_parent_label(first_match)
+                parsed_results['canonical_name'] = parent_label if parent_label else entity_name
             else:
-                # No parent found or already retried; return what we have
-                parsed_results['ATCC_ID'] = None
-                parsed_results['ATCC_URL'] = None
-                parsed_results['canonical_name'] = entity_name
+                # NO ATCC found. Check for a parent/canonical name to retry.
+                parent_label = find_parent_label(first_match)
+                
+                if parent_label and parent_label.lower() != entity_name.lower() and not is_retry:
+                    # RECURSIVE CALL: Try again using the parent name
+                    return cross_check_cell_line(parent_label, is_retry=True)
+                else:
+                    # No parent found or already retried; return what we have
+                    parsed_results['ATCC_ID'] = None
+                    parsed_results['ATCC_URL'] = None
+                    parsed_results['canonical_name'] = entity_name
 
-        return parsed_results
+            return parsed_results
+
+        return f"No exact match found for {entity_name} in top 10 results."
 
     except Exception as e:
         return f"Error querying Cellosaurus for {entity_name}: {str(e)}"
@@ -226,7 +275,7 @@ def check_uniprot(name):
             if name_upper in [n for n in all_possible_names if n]:
                 return entry.get("primaryAccession")
 
-    except exception as e:
+    except Exception as e:
         print(f"Error checking UniProt for {name}: {str(e)}")
         return None
     return None
@@ -305,7 +354,7 @@ for (entity_text, entity_label), count in tqdm(entity_counts.items()):
 
 with open("validated_drugs.json", "w") as f:
     json.dump(validated_drugs, f, indent=4)
-
+'''
 '''
 def agent_verify_biomed(entity_name):
 
