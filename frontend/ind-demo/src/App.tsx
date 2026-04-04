@@ -32,32 +32,42 @@ export default function App() {
   }
 
    return (
-    <div className="grid grid-cols-3 grid-rows-[1fr_250px] h-screen">
+    
+    <div className="h-screen flex flex-col">
 
-      {/* Left */}
-      <div className="border">
-        <PDFPanel />
-      </div>
+  {/* TITLE */}
+  <div className="px-6 py-4 border-b">
+    <h1 className="text-xl font-semibold">
+      Paper to IND | AI Authoring
+    </h1>
+  </div>
 
-      {/* Center */}
-      <div className="border flex items-center justify-center">
-        <ControlPanel onStart={handleStart} />
-      </div>
+  {/* MAIN CONTENT */}
+  <div className="flex-1 grid grid-cols-3 grid-rows-[1fr_250px]">
 
-      {/* Right */}
-      <div className="border overflow-y-auto">
-        <StatusPanel status={status} />
-        <FieldsPanel fields={fields} onSelect={setSelectedField} />
-      </div>
-
-      {/* Bottom */}
-      <div className="col-span-3 border">
-        <INDPanel ind={ind} />
-      </div>
-
-      {/* Modal */}
-      <FieldModal field={selectedField} onClose={() => setSelectedField(null)} />
-
+    {/* Left */}
+    <div className="border h-full">
+      <PDFPanel />
     </div>
+
+    {/* Center */}
+    <div className="border flex items-center justify-center">
+      <ControlPanel onStart={handleStart} />
+    </div>
+
+    {/* Right */}
+    <div className="border overflow-y-auto">
+      <StatusPanel status={status} />
+      <FieldsPanel fields={fields} onSelect={setSelectedField} />
+    </div>
+
+    {/* Bottom */}
+    <div className="col-span-3 border">
+      <INDPanel ind={ind} />
+    </div>
+
+  </div>
+
+</div>
   );
 }
