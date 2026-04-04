@@ -19,7 +19,12 @@ async def run_entity_pipeline_stream(entities, text):
 
         classified_entities.append(result)
 
-        yield { "status": f"Processed entity {entity}" }
+        yield { 
+            "type": "entity",
+            "entity": canonical,
+            "label": result.get("label"),
+            "reasoning": result.get("reason")
+        }
         await asyncio.sleep(0)
  
         print(f"Processed entity: {canonical}, result: {result}")
