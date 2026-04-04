@@ -5,7 +5,8 @@ from gliner import GLiNER
 # The extract function takes in the text and the labels to extract and returns the identified entities.
 
 class BiomedicalNER:
-    def __init__(self, model_path="Ihor/gliner-biomed-base-v1.0", device="cuda"):
+    def __init__(self, model_path="Ihor/gliner-biomed-base-v1.0"):
+        device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model = GLiNER.from_pretrained(model_path).to(device)
 
     def extract(self, text, labels):
