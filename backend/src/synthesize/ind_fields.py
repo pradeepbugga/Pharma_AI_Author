@@ -19,7 +19,8 @@ def build_ind_fields(ind_context):
         "value": ind_context["drug_name"]["primary_drug"],
         "status": "present" if ind_context["drug_name"]["primary_drug"] else "missing",
         "source": "llm derived",
-        "additional_info": f'Confidence: {ind_context["drug_name"]['confidence']}'
+        "confidence": ind_context["drug_name"].get("confidence", "N/A"),
+        "evidence": ind_context["drug_name"].get("evidence", "N/A")
     }
 
     # ----- PHARMACOLOGICAL CLASS -----
@@ -28,8 +29,9 @@ def build_ind_fields(ind_context):
         "value": ind_context["pharmacological_class"].get("class"),
         "status": "present" if ind_context["pharmacological_class"].get("class") else "missing",
         "source": "llm derived",
-        "additional_info": f'Modality: {ind_context["pharmacological_class"].get("modality", "N/A")} | Evidence: {ind_context["falsification"].get("mechanism_evidence", "N/A")}'
-    }
+        "confidence": ind_context["pharmacological_class"].get("confidence", "N/A"),
+        "evidence": ind_context["falsification"].get("mechanism_evidence", "N/A")
+        }
 
     # ----- STRUCTURAL FORMULA ------
 
@@ -39,7 +41,9 @@ def build_ind_fields(ind_context):
     fields["Structural Formula"] = {
         "value": inner_values.get("molecular_formula"),
         "status": struct_formula_result.get("status", "missing"),
-        "source": struct_formula_result.get("source", "missing")
+        "source": struct_formula_result.get("source", "missing"),
+        "confidence": struct_formula_result.get("confidence", "N/A"),
+        "evidence": struct_formula_result.get("evidence", "N/A")    
     }
 
     # ----- ACTIVE INGREDIENTS -----
@@ -48,7 +52,8 @@ def build_ind_fields(ind_context):
         "value": ind_context.get("active_ingredients",{}).get("active_ingredients"),
         "status": assign_status(ind_context.get("active_ingredients",{}).get("active_ingredients")),
         "source": "llm derived",
-        "additional_info": f'Confidence: {ind_context.get("active_ingredients",{}).get("confidence", "N/A")}'
+        "confidence" : ind_context.get("active_ingredients",{}).get("confidence", "N/A"),
+        "evidence": ind_context.get("active_ingredients",{}).get("evidence", "N/A")
     }   
 
     # ----- FORMULATION -----
@@ -57,7 +62,8 @@ def build_ind_fields(ind_context):
         "value": ind_context.get("formulation", {}).get("formulation_description"),
         "status": assign_status(ind_context.get("formulation", {}).get("formulation_description")),
         "source": "llm derived",
-        "additional_info": f'Evidence: {ind_context.get("formulation", {}).get("evidence", "N/A")} | Confidence: {ind_context.get("formulation", {}).get("confidence", "N/A")}'
+        "evidence": ind_context.get("formulation", {}).get("evidence", "N/A"),
+        "confidence": ind_context.get("formulation", {}).get("confidence", "N/A")
         }
 
 
@@ -82,8 +88,8 @@ def build_ind_fields(ind_context):
         "value": value,
         "status": "present" if dose_output.get("valid") else "missing",
         "source": "llm derived",
-        "additional_info": f"Evidence: {dose_output.get('evidence', '')} | Confidence: {dose_output.get('confidence', 'N/A')}"
-        }
+        "confidence": dose_output.get("confidence", "N/A"),
+        "evidence": dose_output.get("evidence", "N/A")}
 
 
     # ----- ROUTE OF ADMINISTRATION -----
@@ -92,8 +98,8 @@ def build_ind_fields(ind_context):
         "value": ind_context.get("dose", {}).get("route"),
         "status": "present" if ind_context.get("dose", {}).get("route") else "missing",
         "source": "llm derived",
-        "additional_info": f"Evidence: {ind_context.get('dose', {}).get('evidence', '')} | Confidence: {ind_context.get('dose', {}).get('confidence', 'N/A')}"
-    }
+        "confidence": ind_context.get("dose", {}).get("confidence", "N/A"),
+        "evidence": ind_context.get("dose", {}).get("evidence", "N/A")}
 
     # ----- DURATION -----
 
