@@ -42,6 +42,7 @@ Return JSON:
 {{
   "primary_drug": "...",
   "secondary_drugs": [...],
+  "evidence": "Text snippets supporting the selection",
   "confidence": 0-1
 }}
 """
