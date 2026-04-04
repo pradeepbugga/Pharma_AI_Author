@@ -20,8 +20,21 @@ def parse_sections(data):
             materials_methods_section.append(section.get("section_text", ""))
 
     return {
-        "abstract": " ".join(abstract_section),
-        "results": " ".join(results_section),
-        "discussion": " ".join(discussion_section),
-        "materials_methods": " ".join(materials_methods_section)
-    }
+        "abstract": abstract_section,
+        "results": results_section,
+        "discussion": discussion_section,
+        "materials_methods": materials_methods_section 
+            }
+
+if __name__ == "__main__":
+    import json
+
+    with open("./backend/src/data/papers/PMID_36216931/raw_text.json") as f:
+        data = json.load(f)
+
+    sections = parse_sections(data)
+
+    print(len(sections["abstract"]))
+    print(len(sections["results"]))
+    print(len(sections["discussion"]))
+    print(len(sections["materials_methods"]))
