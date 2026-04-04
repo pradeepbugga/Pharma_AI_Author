@@ -5,7 +5,7 @@ from backend.src.extraction.fields.extract_dose import extract_dose_candidates, 
 
 def build_dose_context(primary_drug, sections):
 
-    text = sections['abstract'] + "" + sections['results']
+    text = " ".join(sections['abstract'] + sections['results'])
     # Extract dose candidates from the text
     dose_candidates = extract_dose_candidates(text)
 

@@ -15,8 +15,7 @@ def build_formulation_context(primary_drug, sections):
         "resuspended in",
         "diluted in"
     ]
-
-    text = sections['abstract'] + "" + sections['results'] + "" + sections['materials_methods']
+    text = " ".join(sections['abstract'] + sections['results'] + sections['materials_methods'])
 
     formulation_chunks = retrieve_chunks_simple(text, FORMULATION_KEYWORDS, primary_drug)
 

@@ -8,7 +8,8 @@ def build_administration_context(primary_drug, sections, study_model, model_cont
 
     ADMIN_KEYWORDS = ["administered", "treatment", "treated with", "dosed", "given", "received", "mg/kg"]
 
-    admin_chunks = retrieve_chunks_simple(sections['abstract'] + "" + sections['results'], ADMIN_KEYWORDS, primary_drug)
+    admin_chunks = retrieve_chunks_simple(" ".join(sections['abstract'] + sections['results']), 
+    ADMIN_KEYWORDS, primary_drug)
 
     model_chunks = []
     # these are chunks that are relevant to the study model classification - we will use them as additional context for administration detection    model_chunks = []

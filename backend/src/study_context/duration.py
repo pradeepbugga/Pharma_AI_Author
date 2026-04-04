@@ -6,7 +6,7 @@ from backend.src.extraction.fields.extract_duration import extract_duration_cand
 
 def build_duration_context(sections):
 
-    text = sections['abstract'] + "" + sections['results']
+    text = " ".join(sections['abstract'] + sections['results'])
     duration_candidates = extract_duration_candidates(text)
     duration_contexts = get_duration_contexts(text, duration_candidates)
 
