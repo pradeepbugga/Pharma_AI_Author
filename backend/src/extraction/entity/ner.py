@@ -1,4 +1,5 @@
 from gliner import GLiNER
+import torch
 
 # we define a class for NER extraction so that we can 
 # easily swap out the underlying NER model if needed. 
