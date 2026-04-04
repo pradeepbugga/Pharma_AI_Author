@@ -10,5 +10,5 @@ logs/
 *.log
 
 # any files in root directory (any extension)
-/*
+/*.*
 !.gitignore
