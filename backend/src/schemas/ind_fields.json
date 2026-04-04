@@ -1,0 +1,311 @@
+{
+    "sections": [
+        {
+            "section_id": "312.23(a)(3)",
+            "heading_name": "Introductory statement and general investigational plan",
+            "subsections": [
+                {
+                    "subsection_id": "3.12.23(a)(3)(i)",
+                    "source_text": "A brief introductory statement giving the name of the drug and all active ingredients, the drug's pharmacological class, the structural formula of the drug (if known), the formulation of the dosage form(s) to be used, the route of administration, and the broad objectives and planned duration of the proposed clinical investigation(s).",
+                    "fields": [
+                        {
+                            "field_name": "Drug Name",
+                            "type": "atomic",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Pharmacological Class",
+                            "type": "derived",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Structural Formula",
+                            "type": "atomic",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "structural_formula_known",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Active Ingredients",
+                            "type": "atomic",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Formulation",
+                            "type": "atomic",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Dose",
+                            "type": "atomic",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Route of Administration",
+                            "type": "atomic",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Planned Exposure (e.g. duration of study drug administration)",
+                            "type": "atomic",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Broad Objectives of Proposed Clinical Investigations",
+                            "type": "derived",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        }
+                    ]
+                },
+                {
+                    "subsection_id": "3.12.23(a)(3)(ii)",
+                    "source_text": "A brief summary of previous human experience with the drug, with reference to other IND's if pertinent, and to investigational or marketing experience in other countries that may be relevant to the safety of the proposed clinical investigation(s).",
+                    "fields": [
+                        {
+                            "field_name": "Summary of Prior Human Experience with the Study Drug",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "human_data_available",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Status of the Drug in Other Countries",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "drug_approved_in_other_countries",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Other INDs Pertinent to Safety of Proposed Clinical Investigations",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "other_inds_pertinent_to_safety",
+                            "source": null
+                        }
+                    ]
+                },
+                {
+                    "subsection_id": "3.12.23(a)(3)(iii)",
+                    "source_text": "If the drug has been withdrawn from investigation or marketing in any country for any reason related to safety or effectiveness, identification of the country(ies) where the drug was withdrawn and the reasons for the withdrawal.",
+                    "fields": [
+                        {
+                            "field_name": "Withdrawal Status of the Drug",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "drug_withdrawn_from_market",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Reasons for Withdrawal",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "drug_withdrawn_from_market",
+                            "source": null
+                        }
+                    ]
+                },
+                {
+                    "subsection_id": "3.12.23(a)(3)(iv)",
+                    "source_text": "A brief description of the overall plan for investigating the drug product for the following year. The plan should include the following: (a) The rationale for the drug or the research study; (b) the indication(s) to be studied; (c) the general approach to be followed in evaluating the drug; (d) the kinds of clinical trials to be conducted in the first year following the submission (if plans are not developed for the entire year, the sponsor should so indicate); (e) the estimated number of patients to be given the drug in those studies; and (f) any risks of particular severity or seriousness anticipated on the basis of the toxicological data in animals or prior studies in humans with the drug or related drugs.",
+                    "fields": [
+                        {
+                            "field_name": "Rationale for the Drug or Research Study",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Indication(s) to be Studied",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "General Approach to Evaluating the Drug",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Kinds of Clinical Trials to be Conducted in the First Year",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Estimated Number of Patients to be Given the Drug in Those Studies",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Anticipated Risks of Particular Severity or  Seriousness",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "anticipated_risks_based_on_toxicological_data_or_prior_studies",
+                            "source": null
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "section_id": "312.23(a)(8)",
+            "heading_name": "Pharmacology and toxicology information",
+            "subsections": [
+                {
+                    "subsection_id": "3.12.23(a)(8)(i)",
+                    "source_text": "A section describing the pharmacological effects and mechanism(s) of action of the drug in animals, and information on the absorption, distribution, metabolism, and excretion of the drug, if known.",
+                    "fields": [
+                        {
+                            "field_name": "Pharmacological Effects in Animals",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Mechanism(s) of Action in Animals",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": null,
+                            "source": null
+                        },
+                        {
+                            "field_name": "Absorption, Distribution, Metabolism, and Excretion (ADME) Information",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "adme_information_known",
+                            "source": null
+                        }
+                    ]
+                },
+                {
+                    "subsection_id": "3.12.23(a)(8)(ii)(a)",
+                    "source_text": "An integrated summary of the toxicological effects of the drug in animals and in vitro. Depending on the nature of the drug and the phase of the investigation, the description is to include the results of acute, subacute, and chronic toxicity tests; tests of the drug's effects on reproduction and the developing fetus; any special toxicity test related to the drug's particular mode of administration or conditions of use (e.g., inhalation, dermal, or ocular toxicology); and any in vitro studies intended to evaluate drug toxicity.",
+                    "fields": [
+                        {
+                            "field_name": "Summary of Toxicological Effects In Vitro",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "in_vitro_toxicology_studies_conducted",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Summary of Toxicological Effects in Animals",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "animal_toxicology_studies_conducted",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Results of Acute, Subacute, and Chronic Toxicity Tests",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "toxicity_tests_conducted",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Results of Reproductive and Developmental Toxicity Tests",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "reproductive_or_developmental_toxicity_tests_conducted",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Results of Special Toxicity Tests Related to Mode of Administration or Conditions of Use",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "special_toxicity_tests_conducted",
+                            "source": null
+                        }
+                    ]
+                },
+                {
+                    "subsection_id": "3.12.23(a)(8)(ii)(b)",
+                    "source_text": "For each toxicology study that is intended primarily to support the safety of the proposed clinical investigation, a full tabulation of data suitable for detailed review.",
+                    "fields": [
+                        {
+                            "field_name": "Tabulation of Data for Toxicology Study 1",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "toxicology_study_1_intended_to_support_safety_of_proposed_clinical_investigation",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Tabulation of Data for Toxicology Study 2",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "toxicology_study_2_intended_to_support_safety_of_proposed_clinical_investigation",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Tabulation of Data for Toxicology Study 3",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "toxicology_study_3_intended_to_support_safety_of_proposed_clinical_investigation",
+                            "source": null
+                        }
+                    ]
+                },
+                {
+                    "subsection_id": "3.12.23(a)(8)(iii)",
+                    "source_text": "For each nonclinical laboratory study subject to the good laboratory practice regulations under part 58, a statement that the study was conducted in compliance with the good laboratory practice regulations in part 58, or, if the study was not conducted in compliance with those regulations, a brief statement of the reason for the noncompliance.",
+                    "fields": [
+                        {
+                            "field_name": "Statement of Compliance with Good Laboratory Practice Regulations for Nonclinical Laboratory Study 1",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "nonclinical_laboratory_study_1_subject_to_good_laboratory_practice_regulations",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Statement of Compliance with Good Laboratory Practice Regulations for Nonclinical Laboratory Study 2",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "nonclinical_laboratory_study_2_subject_to_good_laboratory_practice_regulations",
+                            "source": null
+                        },
+                        {
+                            "field_name": "Statement of Compliance with Good Laboratory Practice Regulations for Nonclinical Laboratory Study 3",
+                            "value": null,
+                            "status": "present | missing | not_applicable",
+                            "required_if": "nonclinical_laboratory_study_3_subject_to_good_laboratory_practice_regulations",
+                            "source": null
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
