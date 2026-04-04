@@ -1,8 +1,10 @@
-export default function ControlPanel({ onStart }) {
+export default function ControlPanel({ onStart }:any) {
   return (
-    <div className="text-center">
-      <p className="mb-2 text-sm">
-        Generate IND Introduction
+    <div className="control-panel">
+
+      <p className="control-title">
+        Generate <br/> 
+        IND Introduction
       </p>
 
       <button
@@ -11,6 +13,7 @@ export default function ControlPanel({ onStart }) {
       >
         Extract
       </button>
+
     </div>
   );
 }
