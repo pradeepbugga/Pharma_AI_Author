@@ -28,3 +28,61 @@ def clean_biomedical_text(text):
     text = re.sub(r'\s+', ' ', text).strip()
     
     return text
+
+import re
+import html
+
+def normalize_latex_to_html(text):
+    if not text or not isinstance(text, str):
+        return text
+
+    # --- short-circuit if already clean (cheap optimization) ---
+    if "<sup>" in text or "<sub>" in text:
+        # still need to clean LaTeX remnants if mixed
+        pass
+
+    # --- protect existing HTML tags ---
+    text = text.replace("<sup>", "___SUP_OPEN___")
+    text = text.replace("</sup>", "___SUP_CLOSE___")
+    text = text.replace("<sub>", "___SUB_OPEN___")
+    text = text.replace("</sub>", "___SUB_CLOSE___")
+
+    # --- escape everything else ---
+    text = html.escape(text)
+
+    # --- restore HTML tags ---
+    text = text.replace("___SUP_OPEN___", "<sup>")
+    text = text.replace("___SUP_CLOSE___", "</sup>")
+    text = text.replace("___SUB_OPEN___", "<sub>")
+    text = text.replace("___SUB_CLOSE___", "</sub>")
+
+    # --- LaTeX → HTML conversions ---
+
+    # superscripts (with \mathrm)
+    text = re.sub(
+        r"\$?\^\{\\mathrm\{([^}]+)\}\}\$?",
+        r"<sup>\1</sup>",
+        text
+    )
+
+    # superscripts generic
+    text = re.sub(
+        r"\$?\^\{([^}]+)\}\$?",
+        r"<sup>\1</sup>",
+        text
+    )
+
+    # subscripts
+    text = re.sub(
+        r"\$?_\{([^}]+)\}\$?",
+        r"<sub>\1</sub>",
+        text
+    )
+
+    # IC50 variants → canonical
+    text = re.sub(r"IC[_\s]?50", r"IC<sub>50</sub>", text)
+
+    # remove leftover math markers
+    text = text.replace("$", "")
+
+    return text
