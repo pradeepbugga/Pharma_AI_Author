@@ -182,11 +182,8 @@ def normalize_durations(grouped_data, context_memory):
   return call_llm(prompt)
 
 def extract_duration(primary_drug, context_data, admin_chunks, admin_results, dose_results):
-    
     duration_contexts = context_data["duration_contexts"]
-
     full_metadata = []
-    grouped_by_class = defaultdict(list)
 
     for item in duration_contexts:
         candidate = item["value"]
@@ -196,17 +193,17 @@ def extract_duration(primary_drug, context_data, admin_chunks, admin_results, do
 
         classification = llm_output["classification"]
 
+        # Preserve the full record
         record = {
-            "value": candidate,
-            "classification": classification,
+            "value": item["value"], # The raw candidate
+            "classification": llm_output["classification"],
             "evidence": llm_output.get("evidence", ""),
             "confidence": llm_output.get("confidence", 0)
         }
-
         full_metadata.append(record)
-        grouped_by_class[classification].append(candidate)
 
-    return normalize_durations_deterministic(grouped_by_class, full_metadata)
+    # Call the new deterministic function with the full objects
+    return normalize_durations_deterministic(full_metadata)
 
 
 # below are deterministic normalization functions to be used instead of 
@@ -219,23 +216,53 @@ def normalize_duration_value(raw):
     return f"{int(match.group())} days"
 
 
-def normalize_durations_deterministic(grouped_data, full_metadata):
-    output = {}
+def normalize_durations_deterministic(full_metadata):
+    """
+    Groups by classification, normalizes values, and maintains 
+    all source evidence and confidence scores.
+    """
+    structured_output = {}
 
-    for category, values in grouped_data.items():
-        normalized_set = set()
+    for record in full_metadata:
+        category = record["classification"]
+        raw_val = record["value"]
+        
+        # 1. Normalize the value (e.g., "After 7 Days" -> "7 days")
+        norm_val = normalize_duration_value(raw_val)
+        if not norm_val:
+            continue
 
-        for v in values:
-            norm = normalize_duration_value(v)
-            if norm:
-                normalized_set.add(norm)
+        # 2. Initialize category and normalized bucket
+        if category not in structured_output:
+            structured_output[category] = {}
+        
+        if norm_val not in structured_output[category]:
+            structured_output[category][norm_val] = {
+                "normalized_value": norm_val,
+                "evidence_list": [],
+                "source_confidences": [],
+                "raw_values": set()
+            }
 
-        # sort numerically
-        def extract_days(x):
-            return int(re.search(r"\d+", x).group())
+        # 3. Attach the provenance data
+        structured_output[category][norm_val]["evidence_list"].append(record["evidence"])
+        structured_output[category][norm_val]["source_confidences"].append(record["confidence"])
+        structured_output[category][norm_val]["raw_values"].add(raw_val)
 
-        sorted_vals = sorted(normalized_set, key=extract_days)
+    # 4. Final Format (Sort and flatten)
+    final_results = {}
+    for category, norm_map in structured_output.items():
+        # Numerical sort by the days in the key
+        sorted_keys = sorted(norm_map.keys(), key=lambda x: int(re.search(r"\d+", x).group()))
+        
+        final_results[category] = []
+        for key in sorted_keys:
+            entry = norm_map[key]
+            final_results[category].append({
+                "normalized_value": entry["normalized_value"],
+                "evidence": " | ".join(list(set(entry["evidence_list"]))), # Deduplicated snippets
+                "confidence": max(entry["source_confidences"]), # Or average
+                "debug_raw_source": list(entry["raw_values"])
+            })
 
-        output[category] = sorted_vals
-
-    return output
+    return final_results
