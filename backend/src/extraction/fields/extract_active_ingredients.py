@@ -50,6 +50,7 @@ def extract_active(drug_name, drug_candidates, text):
     "rejected_candidates": {{
         "drug_name": "reason for exclusion"
     }},
+    "evidence": "Text snippets supporting the selection",
     "confidence": 0-1
     }}
     """

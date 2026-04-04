@@ -8,7 +8,8 @@ def extract_structural_formula(drug, modality, pubchem_info):
     if modality != "small molecule":
         return {
             "value": {
-
+            "confidence": "N/A",
+            "evidence": "Modality is not small molecule",
             "molecular_formula": None,
             "smiles": None,
             "inchi": None},  
@@ -30,7 +31,9 @@ def extract_structural_formula(drug, modality, pubchem_info):
                 "smiles": pubchem_data["smiles"],
                 "inchi": pubchem_data["inchi"]},
                 "status": "present",
-                "source": "pubchem"
+                "source": "pubchem",
+                "confidence": "1.0",
+                "evidence": f'Extracted from PubChem for CID {cid}'
             }
         except Exception as e:
             pass
@@ -40,5 +43,7 @@ def extract_structural_formula(drug, modality, pubchem_info):
         "molecular_formula": None,
         "smiles": None,
         "inchi": None},
-        "status": "missing"
+        "status": "missing",
+        "confidence": "N/A",
+        "evidence": "CID not found in PubChem"
     }
