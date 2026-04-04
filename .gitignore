@@ -1,0 +1,14 @@
+# pycache
+
+__pycache__/
+
+# environment variables
+.env
+
+# logs
+logs/
+*.log
+
+# any files in root directory (any extension)
+/*
+!.gitignore
