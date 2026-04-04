@@ -114,14 +114,14 @@ async def run_ind_pipeline_stream(entity_input, paper_path):
     }
 
     if has_human_data:
-        ind_intro = synthesize_preclinical(fields, ind_study_context)
+        ind_intro = synthesize_preclinical(fields, ind_study_context)["ind_intro"]
     else:
-        ind_intro = synthesize_clinical(fields, ind_study_context)
+        ind_intro = synthesize_clinical(fields, ind_study_context)["ind_intro"]
     print(ind_intro)
    
     yield{
         "status": "IND pipeline complete",
         "fields": fields,
-        "ind_intro": ind_intro["ind_intro"]
+        "ind_intro": ind_intro
             }
 
