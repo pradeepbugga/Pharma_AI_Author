@@ -4,11 +4,14 @@ from openai import OpenAI
 import os
 import time
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-
+from dotenv import load_dotenv
 
 # this script calls LLM (we use Kimi K2) with a given prompt
 # we use the functino for all our LLM calls in this project
 # we also use tenacity to implement retries with exponential backoff in case of rate limits or transient errors
+
+
+load_dotenv()  # Load environment variables from .env file
 
 API_KEY = os.getenv("KIMI_K_API_KEY")
 
