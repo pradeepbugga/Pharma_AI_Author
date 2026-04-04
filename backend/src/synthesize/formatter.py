@@ -43,8 +43,33 @@ def format_duration_field(normalized_output):
         "value": main_value,
         "status": status,
         "source": "llm_derived",
-        "additional_info": {
-            "primary_evidence": evidence_by_type.get("administration_duration", "No admin duration found"),
+        "confidence": normalized_output.get("confidence", "N/A"),
+        "evidence": evidence_by_type.get("administration_duration", "No duration evidence found"),
+        "additional_info": {            
             "contextual_info": {k: v for k, v in evidence_by_type.items() if k != "administration_duration"}
         }
     }
+
+def format_ind_text(text):
+    if not text:
+        return ""
+
+    # --- mutation formatting ---
+    # KRASG12D → KRAS<sup>G12D</sup>
+    text = re.sub(
+        r"\b(KRAS)(G12D)\b",
+        r"\1<sup>\2</sup>",
+        text
+    )
+
+    # --- chemical formula ---
+    text = re.sub(
+        r"\bC(\d+)H(\d+)F(\d+)N(\d+)O(\d+)\b",
+        r"C<sub>\1</sub>H<sub>\2</sub>F<sub>\3</sub>N<sub>\4</sub>O<sub>\5</sub>",
+        text
+    )
+
+    # --- fix % spacing ---
+    text = re.sub(r"(\d+)\s+%", r"\1%", text)
+
+    return text
