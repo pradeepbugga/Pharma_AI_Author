@@ -9,7 +9,8 @@ from backend.src.pipeline.main_pipeline_stream import run_pipeline_stream
 from backend.src.pipeline.drug_pipeline_stream import run_drug_pipeline_stream
 from backend.src.pipeline.study_pipeline_stream import run_study_pipeline_stream
 from backend.src.synthesize.ind_fields import build_ind_fields
-
+from backend.src.utils.text_cleaning import normalize_latex_to_html
+from backend.src.synthesize.formatter import format_ind_text
 
 PAPER_PATH = "./backend/src/data/papers/PMID_36216931/raw_text.json"
 ENTITY_COUNTS_PATH = "./extracted_entities.json"
@@ -23,6 +24,7 @@ async def run_ind_pipeline_stream(entity_input, paper_path):
         data = json.load(f)
 
     sections = parse_sections(data)
+  
   
     # -----ENTITY PIPELINE-----
 
@@ -92,7 +94,20 @@ async def run_ind_pipeline_stream(entity_input, paper_path):
 
     fields = build_ind_fields(ind_context)
 
+    
+
+    # ---- NORMALIZE TEXT FIELDS -----
+    # normalize all values and evidence in fields to clean up any remaining formatting issues
+
+    for field_name, field_info in fields.items():
+        if isinstance(field_info.get("value"), str):
+            field_info["value"] = normalize_latex_to_html(field_info["value"])
+        
+        if isinstance(field_info.get("evidence"), str):
+            field_info["evidence"] = normalize_latex_to_html(field_info["evidence"])
+
     print(json.dumps(fields, indent=2))
+
 
     # ----- SYNTHESIZE IND-INTRO -----
 
@@ -117,6 +132,7 @@ async def run_ind_pipeline_stream(entity_input, paper_path):
         ind_intro = synthesize_preclinical(fields, ind_study_context)["ind_intro"]
     else:
         ind_intro = synthesize_clinical(fields, ind_study_context)["ind_intro"]
+    ind_intro = format_ind_text(ind_intro)
     print(ind_intro)
    
     yield{
