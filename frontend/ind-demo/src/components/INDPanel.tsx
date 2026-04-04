@@ -2,6 +2,12 @@ type Props = {
   ind: any;
 };
 
+function renderHTML(text: string) {
+  return (
+    <span dangerouslySetInnerHTML={{ __html: text }} />
+  );
+}
+
 // reuse same logic as FieldsPanel
 function renderValue(value: any) {
   if (value === null || value === undefined) return "";
@@ -27,11 +33,11 @@ export default function INDPanel({ ind }: Props) {
   if (!ind) return null;
 
   return (
-    <div className="p-4">
-      <h3 className="font-bold mb-2">IND Output</h3>
+    <div className="ind-container">
+      <h3 className="ind-text">IND Output</h3>
 
       <p className="text-sm whitespace-pre-wrap">
-        {renderValue(ind)}
+        {renderHTML(renderValue(ind))}  
       </p>
     </div>
   );
