@@ -9,65 +9,101 @@ import { runStream } from "./api";
 
 export default function App() {
 
-  const [status, setStatus] = useState<string[]>([]);
+
   const [fields, setFields] = useState<any>(null);
   const [ind, setInd] = useState<string | null>(null);
   const [selectedField, setSelectedField] = useState<any>(null);
-
+  const [statusLogs, setStatusLogs] = useState<any[]>([]);
+  const [currentEntity, setCurrentEntity] = useState<any>(null);
 
 
   function handleStart() {
-    setStatus([]);
     setFields(null);
     setInd(null);
+    setStatusLogs([]);
+    setCurrentEntity(null);
 
     runStream((event) => {
-      if (event.status !== "Done") {
-        setStatus((prev) => [...prev, event.status]);
-      } else {
+
+      if (event.type === "entity") {
+        setCurrentEntity(event);
+      }
+
+      if (event.status && event.status !== "Done") {
+        setCurrentEntity(null);
+        setStatusLogs((prev) => [
+          ...prev,
+          { status: event.status }
+        ]);
+      }
+
+      if (event.type === "Done" || event.status === "Done") {
+        setCurrentEntity(null);
         setFields(event.fields);
         setInd(event.intro);
       }
+
     });
   }
 
-   return (
-    
-    <div className="h-screen flex flex-col">
+  return (
+  <div className="app-container">
 
-  {/* TITLE */}
-  <div className="px-6 py-4 border-b">
-    <h1 className="text-xl font-semibold">
-      Paper to IND | AI Authoring
-    </h1>
+    {/* HEADER */}
+    <div className="app-header">
+      <h1 className="app-title">
+        Paper to IND | AI Authoring
+      </h1>
+    </div>
+
+    {/* MAIN GRID */}
+    <div className="app-main">
+
+      {/* Left */}
+      <div className="panel-left">
+        <PDFPanel />
+      </div>
+
+      {/* Center */}
+      <div className="panel-center">
+        <ControlPanel onStart={handleStart} />
+      </div>
+
+      {/* Right */}
+      <div className="panel-right">
+        
+      {!fields && (
+        <StatusPanel 
+          statusLogs={statusLogs} 
+          currentEntity={currentEntity} 
+        />
+      )}
+
+      {fields && (
+        <FieldsPanel 
+          fields={fields} 
+          onSelect={setSelectedField} 
+        />
+      )}
+
+    </div>
+
+      {/* Bottom */}
+      <div className="ind-container">
+        <INDPanel ind={ind} />
+      </div>
+
+    </div>
+
+    {selectedField && (
+      <FieldModal
+        field={selectedField}
+        onClose={() => setSelectedField(null)}
+      />
+    )}
+
   </div>
+);
+} 
 
-  {/* MAIN CONTENT */}
-  <div className="flex-1 grid grid-cols-3 grid-rows-[1fr_250px]">
 
-    {/* Left */}
-    <div className="border h-full">
-      <PDFPanel />
-    </div>
-
-    {/* Center */}
-    <div className="border flex items-center justify-center">
-      <ControlPanel onStart={handleStart} />
-    </div>
-
-    {/* Right */}
-    <div className="border overflow-y-auto">
-      <StatusPanel status={status} />
-      <FieldsPanel fields={fields} onSelect={setSelectedField} />
-    </div>
-
-    {/* Bottom */}
-    <div className="col-span-3 border">
-      <INDPanel ind={ind} />
-    </div>
-
-  </div>
-
-</div>
-  );
-}
