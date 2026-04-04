@@ -2,12 +2,12 @@ export default function ControlPanel({ onStart }) {
   return (
     <div className="text-center">
       <p className="mb-2 text-sm">
-        Extract structured IND fields
+        Generate IND Introduction
       </p>
 
       <button
         onClick={onStart}
-        className="px-4 py-2 border rounded"
+        className="extract-button"
       >
         Extract
       </button>
