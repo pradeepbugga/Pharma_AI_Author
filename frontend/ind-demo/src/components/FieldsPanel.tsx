@@ -3,16 +3,23 @@ type Props = {
   onSelect: (field: any) => void;
 };
 
-// --- VALUE FORMATTER  ---
-function renderValue(value: any) {
+function renderHTML(text: string) {
+  return (
+    <span dangerouslySetInnerHTML={{ __html: text }} />
+  );
+}
+
+function formatFormula(formula: string) {
+  return formula.replace(/(\d+)/g, "<sub>$1</sub>");
+}
+
+function renderValue(value: any, fieldKey?: string) {
   if (value === null || value === undefined) return "";
 
-  // arrays
   if (Array.isArray(value)) {
     return value.join(", ");
   }
 
-  // objects (your main issue)
   if (typeof value === "object") {
     if (value.raw) return value.raw;
 
@@ -25,7 +32,19 @@ function renderValue(value: any) {
     return JSON.stringify(value);
   }
 
-  // string / number
+  if (typeof value === "string") {
+
+    if (fieldKey === "Structural Formula") {
+      return renderHTML(formatFormula(value));
+    }
+
+    if (fieldKey === "Pharmacological Class") {
+      return renderHTML(value);
+    }
+
+    return value;
+  }
+
   return value;
 }
 
@@ -33,26 +52,24 @@ export default function FieldsPanel({ fields, onSelect }: Props) {
   if (!fields) return null;
 
   return (
-    <div className="p-3 space-y-2">
+    <div className="card">
       {Object.entries(fields).map(([key, field]: any) => (
         <div
           key={key}
-          className="border p-2 rounded cursor-pointer hover:bg-gray-50"
-          onClick={() => onSelect(field)}
+          className="field-item"
+          onClick={() => {
+            console.log("clicked", field);
+            onSelect(field);
+          }}
         >
-          {/* Label */}
-          <div className="font-semibold text-sm">
-            {key}
+          <div className="field-label">{key}</div>
+
+          <div className="field-value">
+            {renderValue(field.value, key)}
           </div>
 
-          {/* Value */}
-          <div className="text-sm">
-            {renderValue(field.value)}
-          </div>
-
-          {/* Status (nice signal) */}
           {field.status === "present" && (
-            <div className="text-xs text-green-600">
+            <div className="field-status">
               ✓ present
             </div>
           )}
