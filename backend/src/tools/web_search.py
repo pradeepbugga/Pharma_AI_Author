@@ -2,6 +2,9 @@
 import requests
 import os
 import time
+import dotenv
+
+dotenv.load_dotenv()
 
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
