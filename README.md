@@ -33,5 +33,12 @@ Below is a high-level overview of our approach to AI authoring for pharma regula
 - I did not automate the initial ingest / parsing portion of input paper.  Considering I have prior experience with parsing papers (see https://github.com/pradeepbugga/Med_Chem_Search), I deprioritized this part.
 - The latency is roughly 4-5 minutes for the entire process.  GPU acceleration shaves off 20-30 seconds for the intial NER step, but the rate-limiting step is actually the entity classification (i.e. looping through each named entity and identifying it as drug/protein/gene/cell line/other.  On the flip side, having this information could be valuable for drafting other types of documents (i.e. those that require details on in vitro experiments).
 - Our workflows are not entirely agentic nor autonomous as as deterministically go through each database API step by step, use web search as a fallback, then send that information to an LLM.  The purely agentic alternative would use those database APIs as tools and reason through each appropriately for an answer.  Ultimately, I found that the approach I used here was providing high quality results and therefore I left the architecture as is.
-- The IND introduction is only a few sentences and does not include information that mainly pertains to pharmacology, toxicology, and investigational study plans.  The same approach of structured field extraction and synthesis can be used for these sections as long as we have input text that covers this information (this preclinical paper naturally did not). 
+- The IND introduction is only a few sentences and does not include information that mainly pertains to pharmacology, toxicology, and investigational study plans.  The same approach of structured field extraction and synthesis can be used for these sections as long as we have input text that covers this information (this preclinical paper naturally did not).
+
+### Setup 
+#### Prerequisites 
+Python 3.10+ (I used 3.14.3)
+React (frontend)
+API keys for 
+
 
