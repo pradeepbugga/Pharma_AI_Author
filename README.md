@@ -39,6 +39,26 @@ Below is a high-level overview of our approach to AI authoring for pharma regula
 #### Prerequisites 
 Python 3.10+ (I used 3.14.3)
 React (frontend)
-API keys for 
+API keys for Tavily (web search API) and Kimi K2 (Moonshot AI LLM API) 
+
+#### Environment Setup
+git clone https://github.com/pradeepbugga/Pharma_AI_Author.git
+cd Pharma_AI_Author
+
+python -m venv venv
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+#### Environment Variables
+KIMI_K_API_KEY = ...
+TAVILY_API_KEY = ...
+
+(no API key used for PubChem, Cellosaurus, and UniProt)
+
+### Next Steps
+   The immediate steps are to test on a variety of other input scientific papers to confirm that our approach is generalizable and not overfitting to this specific paper.  After that, we can expand from just the introductory section of the IND filing to other sections. 
+
+
 
 
