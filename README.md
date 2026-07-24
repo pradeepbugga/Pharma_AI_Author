@@ -45,8 +45,7 @@ API keys for Tavily (web search API) and Kimi K2 (Moonshot AI LLM API)
 ```
 git clone https://github.com/pradeepbugga/Pharma_AI_Author.git
 cd Pharma_AI_Author
-```
-```
+
 python -m venv venv
 source venv/bin/activate
 
