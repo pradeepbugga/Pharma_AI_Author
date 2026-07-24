@@ -42,18 +42,21 @@ React (frontend)
 API keys for Tavily (web search API) and Kimi K2 (Moonshot AI LLM API) 
 
 #### Environment Setup
+```
 git clone https://github.com/pradeepbugga/Pharma_AI_Author.git
 cd Pharma_AI_Author
-
+```
+```
 python -m venv venv
 source venv/bin/activate
 
 pip install -r requirements.txt
-
+```
 #### Environment Variables
+```
 KIMI_K_API_KEY = ...
 TAVILY_API_KEY = ...
-
+```
 (no API key used for PubChem, Cellosaurus, and UniProt)
 
 ### Next Steps
